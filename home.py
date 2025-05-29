@@ -4,7 +4,7 @@ st.set_page_config(page_title="Enginuity Unified Dashboard", layout="wide")
 
 # ---- Header ----
 st.markdown("## 🧠 Enginuity Unified Dashboard")
-st.markdown("Agentic Engineering Suite powered by GPT-4.5 and proprietary algorithms")
+st.markdown("Agentic Engineering Suite")
 
 # ---- Navigation Info ----
 st.markdown("""
