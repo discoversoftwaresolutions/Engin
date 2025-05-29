@@ -35,3 +35,20 @@ with tab3:
 
 st.markdown("---")
 st.markdown("© 2025 Discover Software Solutions • FusionX Module")
+import streamlit as st
+from shared.api import post_prompt_to_agent
+
+st.set_page_config(page_title="FusionX – CAD + CAM", layout="wide")
+
+st.title("🧩 FusionX – CAD + CAM Design Assistant")
+
+prompt = st.text_area("Prompt GPT-4.5 Agent", placeholder="E.g., Optimize bracket design...")
+simulation_type = st.selectbox("Simulation Type", ["Structural", "Thermal", "None"])
+
+if st.button("🎯 Run Agent"):
+    result = post_prompt_to_agent("fusionx", prompt, simulation_type if simulation_type != "None" else None)
+    if "error" in result:
+        st.error(result["error"])
+    else:
+        st.success("✅ Agent Response:")
+        st.json(result)
