@@ -1,42 +1,60 @@
 import streamlit as st
+from pages.aeroiq import render_aeroiq_dashboard
+from pages.flowcore import render_flowcore_dashboard
+from pages.fusionx import render_fusionx_dashboard
+from pages.simulai import render_simulai_dashboard
+from pages.visuai import render_visuai_dashboard
+from pages.protoprint import render_protoprint_dashboard
+from pages.circuitiq import render_circuitiq_dashboard
+from pages.codemotion import render_codemotion_dashboard
 
-st.set_page_config(page_title="Enginuity - Unified Engineering Suite", layout="wide")
+# Configure page
+st.set_page_config(
+    page_title="Enginuity Agentic Suite",
+    layout="wide",
+    page_icon="🧠"
+)
 
-st.title("🧠 Enginuity Unified Engineering Dashboard")
-st.caption("Agentic Engineering Suite powered by GPT-4.5 and proprietary algorithms")
+# Sidebar Navigation
+st.sidebar.title("🧠 Enginuity Suite")
+app_selection = st.sidebar.radio(
+    "Select Engineering Module",
+    (
+        "AeroIQ – Aerospace",
+        "FlowCore – Digital Twin & Compliance",
+        "FusionX – Energy & Plasma",
+        "Simulai – Simulation AI",
+        "VisuAI – Visual Intelligence",
+        "ProtoPrint – Additive MFG",
+        "CircuitIQ – Electronics",
+        "CodeMotion – Robotics Code"
+    )
+)
 
-# Intro Section
-st.markdown("""
-Enginuity combines advanced engineering tools with autonomous agents to accelerate design, simulation, compliance, and manufacturing.
+# Route Logic
+if app_selection == "AeroIQ – Aerospace":
+    render_aeroiq_dashboard()
 
-This platform integrates modules for:
-- 🧩 FusionX – CAD + CAM
-- 🌊 SimulAI – Simulation (FEA/CFD)
-- 🎨 VisuAI – Industrial Rendering
-- 🧬 ProtoPrint – Additive Manufacturing
-- 🔌 CircuitIQ – PCB Design
-- 🤖 CodeMotion – Embedded + Robotics
-- 🔄 FlowCore – Digital Twin + Compliance
+elif app_selection == "FlowCore – Digital Twin & Compliance":
+    render_flowcore_dashboard()
 
-Use the sidebar to explore each module or select below.
-""")
+elif app_selection == "FusionX – Energy & Plasma":
+    render_fusionx_dashboard()
 
-# Navigation Buttons
-cols = st.columns(3)
-modules = {
-    "FusionX (CAD + CAM)": "FusionX",
-    "SimulAI (FEA/CFD)": "SimulAI",
-    "VisuAI (Rendering)": "VisuAI",
-    "ProtoPrint (3D Printing)": "ProtoPrint",
-    "CircuitIQ (PCB)": "CircuitIQ",
-    "CodeMotion (Robotics)": "CodeMotion",
-    "FlowCore (Digital Twin)": "FlowCore"
-    "AeroIQ (Aerospace)" 
-}
+elif app_selection == "Simulai – Simulation AI":
+    render_simulai_dashboard()
 
-for idx, (label, module) in enumerate(modules.items()):
-    with cols[idx % 3]:
-        st.page_link(f"/{module}", label=label, icon="🔗")
+elif app_selection == "VisuAI – Visual Intelligence":
+    render_visuai_dashboard()
 
-st.markdown("---")
-st.markdown("© 2025 Discover Software Solutions • Built on GPT-4.5, Streamlit, and Railway Cloud")
+elif app_selection == "ProtoPrint – Additive MFG":
+    render_protoprint_dashboard()
+
+elif app_selection == "CircuitIQ – Electronics":
+    render_circuitiq_dashboard()
+
+elif app_selection == "CodeMotion – Robotics Code":
+    render_codemotion_dashboard()
+
+else:
+    st.warning("Unknown module selected. Please choose from the sidebar.")
