@@ -31,6 +31,7 @@ modules = {
     "CircuitIQ (PCB)": "CircuitIQ",
     "CodeMotion (Robotics)": "CodeMotion",
     "FlowCore (Digital Twin)": "FlowCore"
+    "AeroIQ (Aerospace)" 
 }
 
 for idx, (label, module) in enumerate(modules.items()):
