@@ -1,6 +1,6 @@
 import streamlit as st
 import logging
-from pages.aeroiq import render_aeroiq_dashboard
+from apps.streamlit_dashboard.pages.aeroiq import render_aeroiq_dashboard
 from pages.flowcore import render_flowcore_dashboard
 from pages.fusionx import render_fusionx_dashboard
 from pages.simulai import render_simulai_dashboard
