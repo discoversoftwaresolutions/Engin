@@ -3,21 +3,16 @@ import requests
 import logging
 from typing import Dict, Optional
 
-# ✅ Set Streamlit Page Config FIRST
-st.set_page_config(page_title="AeroIQ - Aerospace Engineering", layout="wide")
+# 🚫 DO NOT include st.set_page_config() here
 
 # ✅ Setup Logger Properly
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def render_dashboard():
-    """
-    Renders the AeroIQ Aerospace Engineering dashboard with improved validation and interactivity.
-    """
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
     st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation.")
 
-    # ✅ Sidebar - Module Selector
     task_options = {
         "CFD Solver": "Computational fluid dynamics simulation.",
         "Propulsion Optimizer": "Optimizing propulsion systems.",
@@ -32,22 +27,19 @@ def render_dashboard():
     task = st.sidebar.selectbox("Select Task", list(task_options.keys()))
     st.sidebar.markdown(f"ℹ **Task Description:** {task_options[task]}")
 
-    # ✅ Input Section
     st.subheader(f"🛠️ Task: {task}")
     prompt = st.text_area("Describe your objective", placeholder="E.g., Optimize nozzle design for supersonic cruise...")
 
-    # ✅ File Upload Validation
     uploaded_file = st.file_uploader("Upload Design/Data File", type=["json", "csv", "stl", "txt"])
 
     if uploaded_file:
         file_name = uploaded_file.name
-        file_size = uploaded_file.size / (1024 * 1024)  # Convert to MB
+        file_size = uploaded_file.size / (1024 * 1024)
         if file_size > 50:
             st.error(f"⚠ File too large ({file_size:.2f}MB). Please upload a file under 50MB.")
             return
         st.success(f"✅ File '{file_name}' uploaded successfully.")
 
-    # ✅ Execution Button
     if st.button("Run Task"):
         if not prompt.strip():
             st.warning("⚠️ Please provide a task description before running.")
@@ -76,10 +68,5 @@ def render_dashboard():
             st.error(f"❌ Internal Error: {str(e)}")
             logger.error(f"Exception during task execution: {e}", exc_info=True)
 
-# ✅ Footer
-st.markdown("---")
-st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
-
-# ✅ Ensure the function runs correctly when executed
-if __name__ == "__main__":
-    render_dashboard()
+    st.markdown("---")
+    st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
