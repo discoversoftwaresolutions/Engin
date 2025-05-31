@@ -3,19 +3,20 @@ import requests
 import logging
 from typing import Dict, Optional
 
-# ✅ Setup logger properly
+# ✅ Setup Logger Properly
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def render_aeroiq_dashboard():
+def render_dashboard():
     """
     Renders the AeroIQ Aerospace Engineering dashboard with improved validation and interactivity.
     """
     st.set_page_config(page_title="AeroIQ - Aerospace Engineering", layout="wide")
 
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
-    st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation)
+    st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation.")
 
-    # ✅ Sidebar - Module selector
+    # ✅ Sidebar - Module Selector
     task_options = {
         "CFD Solver": "Computational fluid dynamics simulation.",
         "Propulsion Optimizer": "Optimizing propulsion systems.",
@@ -26,7 +27,7 @@ def render_aeroiq_dashboard():
         "Firmware Build": "Generate embedded firmware.",
         "Regulatory Compliance": "Assess engineering compliance."
     }
-    
+
     task = st.sidebar.selectbox("Select Task", list(task_options.keys()))
     st.sidebar.markdown(f"ℹ **Task Description:** {task_options[task]}")
 
@@ -36,7 +37,7 @@ def render_aeroiq_dashboard():
 
     # ✅ File Upload Validation
     uploaded_file = st.file_uploader("Upload Design/Data File", type=["json", "csv", "stl", "txt"])
-    file_name, file_size = None, 0
+    
     if uploaded_file:
         file_name = uploaded_file.name
         file_size = uploaded_file.size / (1024 * 1024)  # Convert to MB
@@ -55,7 +56,7 @@ def render_aeroiq_dashboard():
         try:
             files = {"file": uploaded_file.getvalue()} if uploaded_file else None
             payload = {"task": task, "prompt": prompt}
-            response = requests.post("http://localhost:8000/api/v1/aeroiq/run", data=payload, files=files)
+            response = requests.post("http://localhost:8000/api/v1/aeroiq/run", json=payload, files=files)
 
             if response.status_code == 200:
                 result = response.json()
