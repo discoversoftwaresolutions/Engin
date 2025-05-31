@@ -13,7 +13,7 @@ def render_aeroiq_dashboard():
     st.set_page_config(page_title="AeroIQ - Aerospace Engineering", layout="wide")
 
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
-    st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation powered by GPT-4.5 and quantum-enhanced algorithms.")
+    st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation)
 
     # ✅ Sidebar - Module selector
     task_options = {
