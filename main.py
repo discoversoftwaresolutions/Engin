@@ -4,7 +4,7 @@ import importlib
 import sys
 import os
 
-# ✅ Configure Streamlit Page (Moved to the First Line)
+# ✅ Configure Streamlit Page FIRST
 st.set_page_config(
     page_title="Enginuity Agentic Suite",
     layout="wide",
@@ -13,12 +13,13 @@ st.set_page_config(
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("enginuity-main")
 
-# ✅ Dynamically add the correct path to the system
+# ✅ Ensure modules path is included in sys.path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULES_DIR = os.path.join(BASE_DIR, "modules")  # Adjust as needed
-sys.path.append(MODULES_DIR)  # Ensure modules directory is added
+MODULES_DIR = os.path.join(BASE_DIR, "modules")
+if MODULES_DIR not in sys.path:
+    sys.path.insert(0, MODULES_DIR)
 
 # ---- Sidebar Navigation ----
 st.sidebar.title("🧠 Enginuity Suite")
@@ -36,10 +37,9 @@ app_selection = st.sidebar.radio(
     ],
 )
 
-# ✅ Log selection
-logger.info(f"User selected module: {app_selection}")
+logger.info(f"📌 User selected: {app_selection}")
 
-# ---- Simplified Dynamic Import Handling ----
+# ---- Module Mapping ----
 module_map = {
     "AeroIQ – Aerospace": "modules.aeroiq",
     "FlowCore – Digital Twin & Compliance": "modules.flowcore",
@@ -51,26 +51,37 @@ module_map = {
     "CodeMotion – Robotics Code": "modules.codemotion",
 }
 
-# ✅ Load Selected Module or Fallback
-try:
-    if app_selection in module_map:
-        module_name = module_map[app_selection]
+# ---- Dynamic Module Loading ----
+def load_module(module_key: str):
+    module_name = module_map.get(module_key)
+    try:
         module = importlib.import_module(module_name)
-        if hasattr(module, "render_dashboard"):  # Ensure function exists
+        if hasattr(module, "render_dashboard"):
             module.render_dashboard()
         else:
-            logger.error(f"⚠ `{module_name}` does not have `render_dashboard()` function.")
-            st.error(f"⚠ Module `{module_name}` missing `render_dashboard()`. Ensure correct implementation.")
-    else:
-        st.warning(f"⚠ Unknown module selected: {app_selection}")
-        import modules.aeroiq as fallback_module  # ✅ Fallback to AeroIQ
-        fallback_module.render_dashboard()
-except ModuleNotFoundError as e:
-    logger.error(f"❌ Module `{module_name}` not found. Error: {e}")
-    st.error(f"⚠ Module `{module_name}` not found. Ensure it exists and is properly configured.")
-    import modules.aeroiq as fallback_module  # ✅ Fallback if module is missing
-    fallback_module.render_dashboard()
+            logger.error(f"🔧 `{module_name}` missing `render_dashboard()`.")
+            st.error(f"⚠ `{module_name}` is missing the `render_dashboard()` function.")
+    except ModuleNotFoundError as e:
+        logger.error(f"❌ Failed to import `{module_name}`: {e}")
+        st.error(f"❌ Unable to load `{module_name}`. Using fallback module.")
+        fallback_to_aeroiq()
+    except Exception as e:
+        logger.exception(f"🔥 Unexpected error while loading module `{module_name}`: {e}")
+        st.error("⚠ Unexpected error occurred while loading the module.")
+        fallback_to_aeroiq()
+
+# ---- Fallback Logic ----
+def fallback_to_aeroiq():
+    try:
+        import modules.aeroiq as fallback
+        fallback.render_dashboard()
+    except Exception as fallback_err:
+        logger.critical(f"🚨 Fallback module `aeroiq` also failed: {fallback_err}")
+        st.error("🚫 Critical error: Unable to load any dashboard modules.")
+
+# ---- Run Selected Module ----
+load_module(app_selection)
 
 # ---- Footer ----
 st.markdown("---")
-st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
+st.markdown("© 2025 **Discover Software Solutions** • All rights reserved.")
