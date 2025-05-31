@@ -1,15 +1,9 @@
 import streamlit as st
 import logging
-from apps.streamlit_dashboard.pages.aeroiq import render_aeroiq_dashboard
-from pages.flowcore import render_flowcore_dashboard
-from pages.fusionx import render_fusionx_dashboard
-from pages.simulai import render_simulai_dashboard
-from pages.visuai import render_visuai_dashboard
-from pages.protoprint import render_protoprint_dashboard
-from pages.circuitiq import render_circuitiq_dashboard
-from pages.codemotion import render_codemotion_dashboard
+import importlib
 
 # ✅ Setup logger properly
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ✅ Configure Streamlit Page
@@ -38,21 +32,27 @@ app_selection = st.sidebar.radio(
 # ✅ Log selection
 logger.info(f"User selected module: {app_selection}")
 
-# ---- Route Logic ----
+# ---- Dynamic Import Handling ----
 module_map = {
-    "AeroIQ – Aerospace": render_aeroiq_dashboard,
-    "FlowCore – Digital Twin & Compliance": render_flowcore_dashboard,
-    "FusionX – Energy & Plasma": render_fusionx_dashboard,
-    "Simulai – Simulation AI": render_simulai_dashboard,
-    "VisuAI – Visual Intelligence": render_visuai_dashboard,
-    "ProtoPrint – Additive MFG": render_protoprint_dashboard,
-    "CircuitIQ – Electronics": render_circuitiq_dashboard,
-    "CodeMotion – Robotics Code": render_codemotion_dashboard,
+    "AeroIQ – Aerospace": "apps.streamlit_dashboard.pages.aeroiq",
+    "FlowCore – Digital Twin & Compliance": "pages.flowcore",
+    "FusionX – Energy & Plasma": "pages.fusionx",
+    "Simulai – Simulation AI": "pages.simulai",
+    "VisuAI – Visual Intelligence": "pages.visuai",
+    "ProtoPrint – Additive MFG": "pages.protoprint",
+    "CircuitIQ – Electronics": "pages.circuitiq",
+    "CodeMotion – Robotics Code": "pages.codemotion",
 }
 
-# ✅ Render selected module or fallback
 if app_selection in module_map:
-    module_map[app_selection]()
+    try:
+        module_name = module_map[app_selection]
+        module = importlib.import_module(module_name)
+        module.render_dashboard()  # ✅ Ensure each module implements `render_dashboard()`
+    except ModuleNotFoundError as e:
+        logger.error(f"❌ Failed to load module: {module_name}. Error: {e}")
+        st.error(f"⚠ Module `{module_name}` not found. Ensure it exists and is properly configured.")
+        render_aeroiq_dashboard()  # ✅ Fallback to AeroIQ
 else:
     logger.warning(f"⚠ Unknown module selected: {app_selection}")
     st.warning("⚠ Unknown module selected. Loading default module...")
