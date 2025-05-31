@@ -3,6 +3,9 @@ import requests
 import logging
 from typing import Dict, Optional
 
+# ✅ Set Streamlit Page Config FIRST
+st.set_page_config(page_title="AeroIQ - Aerospace Engineering", layout="wide")
+
 # ✅ Setup Logger Properly
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,8 +14,6 @@ def render_dashboard():
     """
     Renders the AeroIQ Aerospace Engineering dashboard with improved validation and interactivity.
     """
-    st.set_page_config(page_title="AeroIQ - Aerospace Engineering", layout="wide")
-
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
     st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation.")
 
@@ -37,7 +38,7 @@ def render_dashboard():
 
     # ✅ File Upload Validation
     uploaded_file = st.file_uploader("Upload Design/Data File", type=["json", "csv", "stl", "txt"])
-    
+
     if uploaded_file:
         file_name = uploaded_file.name
         file_size = uploaded_file.size / (1024 * 1024)  # Convert to MB
@@ -67,6 +68,10 @@ def render_dashboard():
                 st.error(f"❌ Backend Error [{response.status_code}]: {response.text}")
                 logger.error(f"API Error: {response.status_code} | Response: {response.text}")
 
+        except requests.exceptions.RequestException as e:
+            st.error(f"❌ API Request Failed: {str(e)}")
+            logger.error(f"Exception during API request: {e}", exc_info=True)
+
         except Exception as e:
             st.error(f"❌ Internal Error: {str(e)}")
             logger.error(f"Exception during task execution: {e}", exc_info=True)
@@ -74,3 +79,7 @@ def render_dashboard():
 # ✅ Footer
 st.markdown("---")
 st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
+
+# ✅ Ensure the function runs correctly when executed
+if __name__ == "__main__":
+    render_dashboard()
