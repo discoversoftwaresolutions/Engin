@@ -1,8 +1,10 @@
 import streamlit as st
 import logging
 import importlib
+import sys
+import os
 
-# ✅ Setup logger properly
+# ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -12,6 +14,10 @@ st.set_page_config(
     layout="wide",
     page_icon="🧠"
 )
+
+# ✅ Dynamically add the correct path to the system
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(BASE_DIR, "pages"))  # Adjust based on actual structure
 
 # ---- Sidebar Navigation ----
 st.sidebar.title("🧠 Enginuity Suite")
@@ -34,7 +40,7 @@ logger.info(f"User selected module: {app_selection}")
 
 # ---- Dynamic Import Handling ----
 module_map = {
-    "AeroIQ – Aerospace": "apps.streamlit_dashboard.pages.aeroiq",
+    "AeroIQ – Aerospace": "pages.aeroiq",
     "FlowCore – Digital Twin & Compliance": "pages.flowcore",
     "FusionX – Energy & Plasma": "pages.fusionx",
     "Simulai – Simulation AI": "pages.simulai",
@@ -44,19 +50,23 @@ module_map = {
     "CodeMotion – Robotics Code": "pages.codemotion",
 }
 
-if app_selection in module_map:
-    try:
+# ✅ Load Selected Module or Fallback
+try:
+    if app_selection in module_map:
         module_name = module_map[app_selection]
         module = importlib.import_module(module_name)
-        module.render_dashboard()  # ✅ Ensure each module implements `render_dashboard()`
-    except ModuleNotFoundError as e:
-        logger.error(f"❌ Failed to load module: {module_name}. Error: {e}")
-        st.error(f"⚠ Module `{module_name}` not found. Ensure it exists and is properly configured.")
+        if hasattr(module, "render_dashboard"):  # Ensure function exists
+            module.render_dashboard()
+        else:
+            logger.error(f"⚠ `{module_name}` does not have `render_dashboard()` function.")
+            st.error(f"⚠ Module `{module_name}` missing `render_dashboard()`. Ensure correct implementation.")
+    else:
+        st.warning(f"⚠ Unknown module selected: {app_selection}")
         render_aeroiq_dashboard()  # ✅ Fallback to AeroIQ
-else:
-    logger.warning(f"⚠ Unknown module selected: {app_selection}")
-    st.warning("⚠ Unknown module selected. Loading default module...")
-    render_aeroiq_dashboard()
+except ModuleNotFoundError as e:
+    logger.error(f"❌ Module `{module_name}` not found. Error: {e}")
+    st.error(f"⚠ Module `{module_name}` not found. Ensure it exists and is properly configured.")
+    render_aeroiq_dashboard()  # ✅ Fallback if module is missing
 
 # ---- Footer ----
 st.markdown("---")
