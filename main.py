@@ -4,16 +4,16 @@ import importlib
 import sys
 import os
 
-# ✅ Setup Logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# ✅ Configure Streamlit Page
+# ✅ Configure Streamlit Page (Moved to the First Line)
 st.set_page_config(
     page_title="Enginuity Agentic Suite",
     layout="wide",
     page_icon="🧠"
 )
+
+# ✅ Setup Logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ✅ Dynamically add the correct path to the system
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
