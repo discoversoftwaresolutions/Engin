@@ -17,7 +17,8 @@ st.set_page_config(
 
 # ✅ Dynamically add the correct path to the system
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(BASE_DIR, "pages"))  # Adjust based on actual structure
+MODULES_DIR = os.path.join(BASE_DIR, "modules")  # Adjust as needed
+sys.path.append(MODULES_DIR)  # Ensure modules directory is added
 
 # ---- Sidebar Navigation ----
 st.sidebar.title("🧠 Enginuity Suite")
@@ -38,16 +39,16 @@ app_selection = st.sidebar.radio(
 # ✅ Log selection
 logger.info(f"User selected module: {app_selection}")
 
-# ---- Dynamic Import Handling ----
+# ---- Simplified Dynamic Import Handling ----
 module_map = {
-    "AeroIQ – Aerospace": "pages.aeroiq",
-    "FlowCore – Digital Twin & Compliance": "pages.flowcore",
-    "FusionX – Energy & Plasma": "pages.fusionx",
-    "Simulai – Simulation AI": "pages.simulai",
-    "VisuAI – Visual Intelligence": "pages.visuai",
-    "ProtoPrint – Additive MFG": "pages.protoprint",
-    "CircuitIQ – Electronics": "pages.circuitiq",
-    "CodeMotion – Robotics Code": "pages.codemotion",
+    "AeroIQ – Aerospace": "modules.aeroiq",
+    "FlowCore – Digital Twin & Compliance": "modules.flowcore",
+    "FusionX – Energy & Plasma": "modules.fusionx",
+    "Simulai – Simulation AI": "modules.simulai",
+    "VisuAI – Visual Intelligence": "modules.visuai",
+    "ProtoPrint – Additive MFG": "modules.protoprint",
+    "CircuitIQ – Electronics": "modules.circuitiq",
+    "CodeMotion – Robotics Code": "modules.codemotion",
 }
 
 # ✅ Load Selected Module or Fallback
@@ -62,11 +63,13 @@ try:
             st.error(f"⚠ Module `{module_name}` missing `render_dashboard()`. Ensure correct implementation.")
     else:
         st.warning(f"⚠ Unknown module selected: {app_selection}")
-        render_aeroiq_dashboard()  # ✅ Fallback to AeroIQ
+        import modules.aeroiq as fallback_module  # ✅ Fallback to AeroIQ
+        fallback_module.render_dashboard()
 except ModuleNotFoundError as e:
     logger.error(f"❌ Module `{module_name}` not found. Error: {e}")
     st.error(f"⚠ Module `{module_name}` not found. Ensure it exists and is properly configured.")
-    render_aeroiq_dashboard()  # ✅ Fallback if module is missing
+    import modules.aeroiq as fallback_module  # ✅ Fallback if module is missing
+    fallback_module.render_dashboard()
 
 # ---- Footer ----
 st.markdown("---")
