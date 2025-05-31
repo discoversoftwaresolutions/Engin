@@ -1,4 +1,5 @@
 import streamlit as st
+import logging
 from pages.aeroiq import render_aeroiq_dashboard
 from pages.flowcore import render_flowcore_dashboard
 from pages.fusionx import render_fusionx_dashboard
@@ -8,18 +9,21 @@ from pages.protoprint import render_protoprint_dashboard
 from pages.circuitiq import render_circuitiq_dashboard
 from pages.codemotion import render_codemotion_dashboard
 
-# Configure page
+# ✅ Setup logger properly
+logger = logging.getLogger(__name__)
+
+# ✅ Configure Streamlit Page
 st.set_page_config(
     page_title="Enginuity Agentic Suite",
     layout="wide",
     page_icon="🧠"
 )
 
-# Sidebar Navigation
+# ---- Sidebar Navigation ----
 st.sidebar.title("🧠 Enginuity Suite")
 app_selection = st.sidebar.radio(
-    "Select Engineering Module",
-    (
+    "🔬 Select Engineering Module:",
+    [
         "AeroIQ – Aerospace",
         "FlowCore – Digital Twin & Compliance",
         "FusionX – Energy & Plasma",
@@ -28,47 +32,32 @@ app_selection = st.sidebar.radio(
         "ProtoPrint – Additive MFG",
         "CircuitIQ – Electronics",
         "CodeMotion – Robotics Code"
-    )
+    ],
 )
 
-# Route Logic
-if app_selection == "AeroIQ – Aerospace":
+# ✅ Log selection
+logger.info(f"User selected module: {app_selection}")
+
+# ---- Route Logic ----
+module_map = {
+    "AeroIQ – Aerospace": render_aeroiq_dashboard,
+    "FlowCore – Digital Twin & Compliance": render_flowcore_dashboard,
+    "FusionX – Energy & Plasma": render_fusionx_dashboard,
+    "Simulai – Simulation AI": render_simulai_dashboard,
+    "VisuAI – Visual Intelligence": render_visuai_dashboard,
+    "ProtoPrint – Additive MFG": render_protoprint_dashboard,
+    "CircuitIQ – Electronics": render_circuitiq_dashboard,
+    "CodeMotion – Robotics Code": render_codemotion_dashboard,
+}
+
+# ✅ Render selected module or fallback
+if app_selection in module_map:
+    module_map[app_selection]()
+else:
+    logger.warning(f"⚠ Unknown module selected: {app_selection}")
+    st.warning("⚠ Unknown module selected. Loading default module...")
     render_aeroiq_dashboard()
 
-elif app_selection == "FlowCore – Digital Twin & Compliance":
-    render_flowcore_dashboard()
-
-elif app_selection == "FusionX – Energy & Plasma":
-    render_fusionx_dashboard()
-
-elif app_selection == "Simulai – Simulation AI":
-    render_simulai_dashboard()
-
-elif app_selection == "VisuAI – Visual Intelligence":
-    render_visuai_dashboard()
-
-elif app_selection == "ProtoPrint – Additive MFG":
-    render_protoprint_dashboard()
-
-elif app_selection == "CircuitIQ – Electronics":
-    render_circuitiq_dashboard()
-
-elif app_selection == "CodeMotion – Robotics Code":
-    render_codemotion_dashboard()
-
-else:
-    st.warning("Unknown module selected. Please choose from the sidebar.")
-import streamlit as st
-from pages.aeroiq import render_aeroiq_dashboard
-
-def main():
-    st.set_page_config(page_title="Enginuity Suite", layout="wide")
-    page = st.sidebar.selectbox("Choose Module", ["AeroIQ"])
-
-    if page == "AeroIQ":
-        render_aeroiq_dashboard()
-    else:
-        st.warning("Page not implemented yet.")
-
-if __name__ == "__main__":
-    main()
+# ---- Footer ----
+st.markdown("---")
+st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
