@@ -58,3 +58,17 @@ elif app_selection == "CodeMotion – Robotics Code":
 
 else:
     st.warning("Unknown module selected. Please choose from the sidebar.")
+import streamlit as st
+from pages.aeroiq import render_aeroiq_dashboard
+
+def main():
+    st.set_page_config(page_title="Enginuity Suite", layout="wide")
+    page = st.sidebar.selectbox("Choose Module", ["AeroIQ"])
+
+    if page == "AeroIQ":
+        render_aeroiq_dashboard()
+    else:
+        st.warning("Page not implemented yet.")
+
+if __name__ == "__main__":
+    main()
