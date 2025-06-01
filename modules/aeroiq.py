@@ -112,7 +112,55 @@ def render_dashboard():
         ax.legend()
         ax.grid(True)
         st.pyplot(fig)
+from modules.orbital_sim import compute_orbit, compute_hohmann_transfer
+import matplotlib.pyplot as plt
 
+# 🌌 Orbital Path Simulation
+with st.expander("🛰 Orbital Simulation", expanded=False):
+    st.markdown("**Visualize orbital mechanics based on classical orbital parameters.**")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        sma = st.slider("Semi-Major Axis (km)", 6578, 42000, step=100, value=8000)
+    with col2:
+        ecc = st.slider("Eccentricity", 0.0, 0.9, step=0.01, value=0.2)
+    with col3:
+        inc = st.slider("Inclination (°)", 0.0, 180.0, step=1.0, value=28.5)
+
+    x, y, meta = compute_orbit(semi_major_axis_km=sma, eccentricity=ecc, inclination_deg=inc)
+
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.plot(x, y, color="lime", label="Orbital Path")
+    ax.scatter([0], [0], color="blue", label="Earth Center", s=60)
+    ax.set_aspect('equal')
+    ax.set_xlabel("X (km)")
+    ax.set_ylabel("Y (km)")
+    ax.set_title("Keplerian Orbital Path")
+    ax.legend()
+    ax.grid(True)
+    st.pyplot(fig)
+
+    st.success(
+        f"📍 Periapsis: **{meta['periapsis_km']:.2f} km** | "
+        f"Apoapsis: **{meta['apoapsis_km']:.2f} km** | "
+        f"Orbital Period: **{meta['orbital_period_min']:.2f} min**"
+    )
+
+# 🚀 Hohmann Transfer Calculator
+with st.expander("♻️ Hohmann Transfer Calculator", expanded=False):
+    st.markdown("Estimate delta-v and time-of-flight between two circular orbits.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        r1 = st.number_input("Initial Orbit Radius (km)", min_value=6578, max_value=42000, value=7000)
+    with col2:
+        r2 = st.number_input("Target Orbit Radius (km)", min_value=6578, max_value=42000, value=35786)
+
+    if st.button("🧮 Compute Hohmann Transfer"):
+        result = compute_hohmann_transfer(r1, r2)
+        st.success(f"Δv1: {result['delta_v1_km_s']:.4f} km/s → Δv2: {result['delta_v2_km_s']:.4f} km/s")
+        st.info(f"Total Δv: **{result['total_delta_v_km_s']:.4f} km/s**")
+        st.info(f"Time of Flight: **{result['time_of_flight_min']:.2f} minutes**")
         st.info(f"✈️ Estimated cutoff altitude: **{result['cutoff_altitude']:.2f} meters**")
 
     st.markdown("---")
