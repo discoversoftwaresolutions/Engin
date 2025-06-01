@@ -7,7 +7,7 @@ from typing import Dict, Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/aeroiq"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
