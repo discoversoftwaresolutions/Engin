@@ -47,6 +47,31 @@ def render_dashboard():
             # ---- Circuit Notes ----
             st.markdown("### 🧠 Circuit Agent Notes")
             st.text_area("Design Observations", placeholder="Enter layout comments, analysis results...", height=180)
+import streamlit as st
+import requests
+
+st.set_page_config(page_title="CircuitIQ – PCB & Supply Chain", layout="wide")
+
+st.title("🔌 CircuitIQ – Supply Chain Analyzer")
+
+if "bom" not in st.session_state:
+    st.session_state["bom"] = [
+        {"part": "IC-LM317", "category": "regulator"},
+        {"part": "RES-10k", "category": "resistor"},
+        {"part": "CAP-100nF", "category": "capacitor", "available": True}
+    ]
+
+if st.button("🚦 Run Supply Chain Check"):
+    resp = requests.post(
+        "https://enginuity-backend.up.railway.app/api/v1/circuitiq/supply_chain/check",
+        json={"bom": st.session_state["bom"]}
+    )
+    result = resp.json()
+    if "error" in result:
+        st.error(result["error"])
+    else:
+        st.success("✅ Agent Review Complete")
+        st.json(result)
 
     # ---- Bill of Materials Panel ----
     st.markdown("---")
