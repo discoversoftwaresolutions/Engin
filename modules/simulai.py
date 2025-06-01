@@ -3,11 +3,14 @@
 import streamlit as st
 import pandas as pd
 import logging
+import requests
 
 # ✅ Setup logger
 logger = logging.getLogger("simulai")
 
 def render_dashboard():
+    st.set_page_config(page_title="SimulAI: Simulation Intelligence", layout="wide")
+
     st.title("🧩 SimulAI: FEA / CFD / CAE Agent")
     st.caption("Run structural, thermal, and fluid simulations powered by GPT-4.5")
 
@@ -19,6 +22,22 @@ def render_dashboard():
 
     if st.sidebar.button("Run Simulation"):
         st.session_state["run_sim"] = True
+        try:
+            geometry_data = {"filename": sim_file.name if sim_file else "unnamed", "material": material}
+            quality = "medium"
+            res = requests.post(
+                "https://enginuity-production.up.railway.app/simulai/generate-mesh",
+                json={"geometry": geometry_data, "quality": quality},
+                timeout=10
+            )
+            logger.info(f"Mesh generation response: {res.status_code}")
+            if res.ok:
+                st.success("Mesh successfully generated.")
+            else:
+                st.error("Mesh generation failed.")
+        except Exception as e:
+            logger.error(f"Failed to contact SimulAI mesh API: {e}", exc_info=True)
+            st.error("Could not connect to simulation backend.")
 
     # ---- Simulation Tabs ----
     tab1, tab2, tab3 = st.tabs(["🧠 Preprocessing", "📊 Simulation Output", "📋 Interpretation"])
@@ -40,7 +59,7 @@ def render_dashboard():
         st.image(
             "https://upload.wikimedia.org/wikipedia/commons/4/4c/FEA_model_example.png",
             caption="Stress Distribution",
-            use_column_width=True
+            use_container_width=True
         )
 
     with tab3:
