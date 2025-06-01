@@ -1,16 +1,18 @@
-# modules/simulai.py
-
 import streamlit as st
 import pandas as pd
 import logging
 import requests
 
-# ✅ Setup logger
+# ✅ Must be the first Streamlit command
+st.set_page_config(page_title="SimulAI: Simulation Intelligence", layout="wide")
+
+# ✅ Setup Logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("simulai")
 
 def render_dashboard():
-    st.set_page_config(page_title="SimulAI: Simulation Intelligence", layout="wide")
-
+    """Renders the SimulAI dashboard with interactive simulation controls."""
+    
     st.title("🧩 SimulAI: FEA / CFD / CAE Agent")
     st.caption("Run structural, thermal, and fluid simulations powered by GPT-4.5")
 
@@ -21,23 +23,33 @@ def render_dashboard():
     material = st.sidebar.text_input("Material", placeholder="e.g., Aluminum 6061-T6")
 
     if st.sidebar.button("Run Simulation"):
-        st.session_state["run_sim"] = True
-        try:
-            geometry_data = {"filename": sim_file.name if sim_file else "unnamed", "material": material}
-            quality = "medium"
-            res = requests.post(
-                "https://enginuity-production.up.railway.app/simulai/generate-mesh",
-                json={"geometry": geometry_data, "quality": quality},
-                timeout=10
-            )
-            logger.info(f"Mesh generation response: {res.status_code}")
-            if res.ok:
-                st.success("Mesh successfully generated.")
-            else:
-                st.error("Mesh generation failed.")
-        except Exception as e:
-            logger.error(f"Failed to contact SimulAI mesh API: {e}", exc_info=True)
-            st.error("Could not connect to simulation backend.")
+        if not sim_file:
+            st.error("⚠️ Please upload a simulation model before running.")
+            logger.warning("Simulation run attempted without a model file.")
+        else:
+            st.session_state["run_sim"] = True
+            try:
+                geometry_data = {"filename": sim_file.name, "material": material or "Unknown"}
+                quality = "medium"
+                res = requests.post(
+                    "https://enginuity-production.up.railway.app/simulai/generate-mesh",
+                    json={"geometry": geometry_data, "quality": quality},
+                    timeout=10
+                )
+                logger.info(f"Mesh generation response: {res.status_code}")
+                
+                if res.status_code == 200:
+                    response_data = res.json()
+                    st.success("Mesh successfully generated.")
+                    st.image(response_data.get("mesh_preview_url", "https://fallback-image-url.com/default.png"),
+                             caption="Generated Mesh Preview",
+                             use_container_width=True)  # ✅ Dynamically load image
+                else:
+                    st.error(f"⚠️ Mesh generation failed: {res.text}")
+                    logger.error(f"❌ API Failure: {res.status_code} - {res.text}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to contact SimulAI mesh API: {e}", exc_info=True)
+                st.error("Could not connect to simulation backend.")
 
     # ---- Simulation Tabs ----
     tab1, tab2, tab3 = st.tabs(["🧠 Preprocessing", "📊 Simulation Output", "📋 Interpretation"])
@@ -51,6 +63,7 @@ def render_dashboard():
     with tab2:
         st.subheader("📊 Results")
         st.markdown("Visualize stress, temperature, or flow distribution:")
+        
         result_data = pd.DataFrame({
             "Time (s)": [0, 1, 2, 3, 4, 5],
             "Max Stress (MPa)": [0, 75, 120, 150, 175, 180]
@@ -70,3 +83,6 @@ def render_dashboard():
 
     st.markdown("---")
     st.markdown("© 2025 Discover Software Solutions • SimulAI Module")
+
+if __name__ == "__main__":
+    render_dashboard()
