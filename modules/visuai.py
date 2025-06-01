@@ -3,8 +3,6 @@ import logging
 import requests
 from typing import Optional
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="ProtoPrint – Additive Manufacturing", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
