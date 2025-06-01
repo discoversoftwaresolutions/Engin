@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import logging
+from modules.orbital_3d import plot_orbit_3d, get_live_satellite_position
 from typing import Dict, Optional
 import matplotlib.pyplot as plt
 import numpy as np
