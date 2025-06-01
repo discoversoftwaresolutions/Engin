@@ -3,8 +3,7 @@ import pandas as pd
 import logging
 import requests
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="SimulAI: Simulation Intelligence", layout="wide")
+
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
