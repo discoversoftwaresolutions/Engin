@@ -26,6 +26,7 @@ st.sidebar.title("🧠 Enginuity Suite")
 app_selection = st.sidebar.radio(
     "🔬 Select Engineering Module:",
     [
+        "Home",
         "AeroIQ – Aerospace",
         "FlowCore – Digital Twin & Compliance",
         "FusionX – Energy & Plasma",
@@ -35,12 +36,14 @@ app_selection = st.sidebar.radio(
         "CircuitIQ – Electronics",
         "CodeMotion – Robotics Code"
     ],
+    index=0  # Default selection is 'Home'
 )
 
 logger.info(f"📌 User selected: {app_selection}")
 
 # ---- Module Mapping ----
 module_map = {
+    "Home": "modules.home",
     "AeroIQ – Aerospace": "modules.aeroiq",
     "FlowCore – Digital Twin & Compliance": "modules.flowcore",
     "FusionX – Energy & Plasma": "modules.fusionx",
@@ -53,7 +56,7 @@ module_map = {
 
 # ---- Dynamic Module Loading ----
 def load_module(module_key: str):
-    module_name = module_map.get(module_key)
+    module_name = module_map.get(module_key, "modules.home")
     try:
         module = importlib.import_module(module_name)
         if hasattr(module, "render_dashboard"):
@@ -61,22 +64,23 @@ def load_module(module_key: str):
         else:
             logger.error(f"🔧 `{module_name}` missing `render_dashboard()`.")
             st.error(f"⚠ `{module_name}` is missing the `render_dashboard()` function.")
+            fallback_to_home()
     except ModuleNotFoundError as e:
         logger.error(f"❌ Failed to import `{module_name}`: {e}")
         st.error(f"❌ Unable to load `{module_name}`. Using fallback module.")
-        fallback_to_aeroiq()
+        fallback_to_home()
     except Exception as e:
         logger.exception(f"🔥 Unexpected error while loading module `{module_name}`: {e}")
         st.error("⚠ Unexpected error occurred while loading the module.")
-        fallback_to_aeroiq()
+        fallback_to_home()
 
 # ---- Fallback Logic ----
-def fallback_to_aeroiq():
+def fallback_to_home():
     try:
-        import modules.aeroiq as fallback
+        import modules.home as fallback
         fallback.render_dashboard()
     except Exception as fallback_err:
-        logger.critical(f"🚨 Fallback module `aeroiq` also failed: {fallback_err}")
+        logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
         st.error("🚫 Critical error: Unable to load any dashboard modules.")
 
 # ---- Run Selected Module ----
