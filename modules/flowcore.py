@@ -1,49 +1,60 @@
+# modules/flowcore.py
+
 import streamlit as st
 import logging
 from typing import Dict, Any
 from datetime import datetime
 
 # ✅ Setup logger properly
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("flowcore")
 
-def render_flowcore_dashboard():
+def render_dashboard():
     """
-    Renders the FlowCore dashboard for digital twin state synchronization.
+    Renders the FlowCore - Digital Twin & Compliance dashboard.
     """
-    st.set_page_config(page_title="FlowCore - Digital Twin Sync", layout="wide")
-    st.title("🔄 FlowCore - Digital Twin State Synchronization")
-    st.markdown("Sync, observe, and test compliance of your digital twins with real-world telemetry and engineering logic.")
-    
-    # ✅ Sidebar task selection
+    st.title("🔄 FlowCore – Digital Twin & Compliance")
+    st.markdown("**Sync, validate, and observe engineering systems with real-time digital twins and compliance logic.**")
+
+    # ---- Sidebar Navigation ----
+    st.sidebar.subheader("🧭 Select FlowCore Task")
     task_options = {
-        "Sync Digital Twin State": "Synchronize the twin with updated real-world sensor data.",
-        "Track Engineering Changes": "Log and review modifications to the digital twin.",
-        "Validate Compliance Rules": "Assess the twin against engineering compliance standards."
+        "Sync Digital Twin State": "Synchronize the digital twin with real-world telemetry data.",
+        "Track Engineering Changes": "Audit and version control your model state transitions.",
+        "Validate Compliance Rules": "Run your twin against real-time or simulated compliance constraints."
     }
-    task = st.sidebar.selectbox("Select FlowCore Task", list(task_options.keys()))
-    
-    st.sidebar.markdown(f"ℹ **Task Description:** {task_options[task]}")
 
-    # ✅ User input validation
-    prompt = st.text_area("Describe your update or sync goal", placeholder="E.g., Re-sync simulation state to telemetry snapshot...")
-    
-    if st.button("Run Task"):
+    task = st.sidebar.selectbox("Task Options", list(task_options.keys()))
+    st.sidebar.markdown(f"ℹ **Description:** {task_options[task]}")
+
+    # ---- User Input ----
+    st.subheader(f"📌 Selected Task: {task}")
+    prompt = st.text_area("📄 Describe the system state or objective:",
+        placeholder="e.g., Sync propulsion twin with telemetry snapshot from 2025-05-01T00:00Z..."
+    )
+
+    # ---- Task Execution ----
+    if st.button("🚀 Execute Task"):
         if not prompt.strip():
-            st.warning("⚠ Please enter a valid task description.")
+            st.warning("⚠️ Please provide a detailed objective.")
             return
-        
-        timestamp = datetime.utcnow().isoformat()
-        logger.info(f"🔄 Executing task: {task} | Description: {prompt} | Timestamp: {timestamp}")
 
-        # ✅ Simulated response handling
+        timestamp = datetime.utcnow().isoformat()
+        logger.info(f"[FlowCore] Task: {task} | Prompt: {prompt} | Timestamp: {timestamp}")
+
+        # ✅ Simulated execution result
         result: Dict[str, Any] = {
             "task": task,
-            "prompt": prompt,
+            "description": prompt,
             "timestamp": timestamp,
-            "status": "success",
-            "message": "Operation completed successfully."
+            "compliance_passed": True if "compliance" in task.lower() else None,
+            "message": "Digital twin task completed successfully.",
+            "sync_id": f"FLOW-{timestamp[:19].replace(':', '').replace('-', '')}",
         }
 
-        # ✅ Display structured response
-        st.success("✅ FlowCore Task Completed Successfully!")
+        # ✅ Display Output
+        st.success("✅ Task Completed")
         st.json(result)
+
+    # ---- Footer ----
+    st.markdown("---")
+    st.markdown("FlowCore – A Discover Software Solutions Module • 2025")
