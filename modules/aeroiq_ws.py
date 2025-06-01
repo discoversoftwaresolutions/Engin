@@ -3,6 +3,8 @@ import websockets
 import json
 import logging
 
+API_BASE_URL = "https://enginuity-production.up.railway.app" 
+
 # ✅ Setup logger
 logger = logging.getLogger("aeroiq_ws")
 logging.basicConfig(level=logging.INFO)
