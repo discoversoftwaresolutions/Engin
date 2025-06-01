@@ -2,8 +2,6 @@ import streamlit as st
 import logging
 import requests
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="CodeMotion – Robotics & Embedded Systems", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
