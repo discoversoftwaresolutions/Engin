@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 import requests
 
+API_BASE_URL = "https://enginuity-production.up.railway.app" 
 
 
 # ✅ Setup Logger
