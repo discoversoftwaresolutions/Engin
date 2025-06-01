@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # ✅ Setup Logger
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 logger = logging.getLogger("enginuity-main")
 
 # ✅ Ensure modules path is included in sys.path
@@ -67,12 +67,13 @@ try:
     else:
         st.sidebar.warning("⚠️ API connection issue.")
         logger.warning(f"❌ API status error: {res.status_code} - {res.text}")
-except Exception as e:
+except requests.exceptions.RequestException as e:
     st.sidebar.warning("⚠️ Unable to connect to API.")
-    logger.error(f"❌ API connection failed: {e}")
+    logger.error(f"❌ API connection failed: {e}", exc_info=True)
 
 # ---- Dynamic Module Loading ----
 def load_module(module_key: str):
+    """Dynamically loads selected engineering module."""
     module_name = module_map.get(module_key, "modules.home")
     try:
         module = importlib.import_module(module_name)
@@ -96,6 +97,7 @@ def load_module(module_key: str):
 
 # ---- Fallback Logic ----
 def fallback_to_home():
+    """Fallback mechanism to load default Home module in case of failure."""
     try:
         import modules.home as fallback
         fallback.render_dashboard()
