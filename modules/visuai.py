@@ -8,7 +8,7 @@ from typing import Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("visuai")
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/visuai"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     """Renders the VisuAI dashboard for photorealistic rendering and ergonomic evaluation."""
