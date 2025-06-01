@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("circuitiq")
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     """Renders the CircuitIQ – PCB Optimization & Supply Chain Intelligence dashboard."""
