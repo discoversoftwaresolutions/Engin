@@ -47,12 +47,13 @@ logger.info(f"📌 User selected: {app_selection}")
 
 # ---- Module Mapping ----
 module_map = {
+    
     "Home": "modules.home",
     "AeroIQ – Aerospace": "modules.aeroiq",
     "FlowCore – Digital Twin & Compliance": "modules.flowcore",
-    "FusionX – Energy & Plasma": "modules.fusionx",
     "Simulai – Simulation AI": "modules.simulai",
     "VisuAI – Visual Intelligence": "modules.visuai",
+    "FusionX - Energy & Plasma": "modules.fusionx"
     "ProtoPrint – Additive MFG": "modules.protoprint",
     "CircuitIQ – Electronics": "modules.circuitiq",
     "CodeMotion – Robotics Code": "modules.codemotion",
