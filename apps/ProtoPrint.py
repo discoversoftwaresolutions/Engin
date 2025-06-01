@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="ProtoPrint - Additive Manufacturing", layout="wide")
 
 st.title("🖨️ ProtoPrint: Additive Manufacturing Intelligence")
 st.caption("Slicing, material selection, and print simulation driven by GPT-4.5 agents")
