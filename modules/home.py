@@ -1,11 +1,10 @@
-# modules/home.py
-
 import streamlit as st
 import logging
 import importlib
 from shared.config import module_map
 
 # ✅ Setup logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("enginuity-home")
 
 # 🔁 Simulated Agent Status Check (replace with real pings or metrics later)
@@ -17,9 +16,8 @@ def check_agent_status(module_name: str) -> str:
         return "🔴 Offline"
 
 def render_dashboard():
-    """
-    Renders the Enginuity Unified Dashboard with dynamic module listing and status indicators.
-    """
+    """Renders the Enginuity Unified Dashboard with dynamic module listing and status indicators."""
+    
     # ---- Hero Section ----
     st.markdown("## 🧠 Enginuity Unified Dashboard")
     st.markdown("### Agentic Engineering Intelligence Platform")
@@ -29,7 +27,10 @@ def render_dashboard():
     with col1:
         st.success("🚀 Explore CAD, CAM, digital twins, PCB layout, 3D print simulation, and ROS2 systems — all managed by intelligent engineering agents.")
     with col2:
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Engineering_symbol.svg/2560px-Engineering_symbol.svg.png", use_column_width=True)
+        st.image(
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Engineering_symbol.svg/2560px-Engineering_symbol.svg.png",
+            use_container_width=True  # ✅ Updated parameter
+        )
 
     st.divider()
 
@@ -83,3 +84,6 @@ def get_module_description(label: str) -> str:
         "CircuitIQ – Electronics": "PCB layout generation, power integrity checks, and vendor sourcing.",
         "CodeMotion – Robotics Code": "Compose firmware, ROS2 behavior, and run agentic robot tests."
     }.get(label, "Module description not available.")
+
+if __name__ == "__main__":
+    render_dashboard()
