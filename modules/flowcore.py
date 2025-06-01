@@ -4,8 +4,6 @@ import requests
 from typing import Dict, Any
 from datetime import datetime
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="FlowCore – Digital Twin & Compliance", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
