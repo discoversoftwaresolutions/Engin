@@ -4,6 +4,7 @@ import importlib
 import sys
 import os
 import traceback
+import requests  # ✅ Added requests for API communication
 
 # ✅ Configure Streamlit Page FIRST
 st.set_page_config(
@@ -21,6 +22,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
 if MODULES_DIR not in sys.path:
     sys.path.insert(0, MODULES_DIR)
+
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production API
 
 # ---- Sidebar Navigation ----
 st.sidebar.title("🧠 Enginuity Suite")
@@ -54,6 +57,19 @@ module_map = {
     "CircuitIQ – Electronics": "modules.circuitiq",
     "CodeMotion – Robotics Code": "modules.codemotion",
 }
+
+# ---- API Status Check ----
+try:
+    res = requests.get(f"{API_BASE_URL}/status", timeout=5)
+    if res.status_code == 200:
+        st.sidebar.success("✅ Connected to Enginuity API")
+        logger.info("✅ API connection established successfully.")
+    else:
+        st.sidebar.warning("⚠️ API connection issue.")
+        logger.warning(f"❌ API status error: {res.status_code} - {res.text}")
+except Exception as e:
+    st.sidebar.warning("⚠️ Unable to connect to API.")
+    logger.error(f"❌ API connection failed: {e}")
 
 # ---- Dynamic Module Loading ----
 def load_module(module_key: str):
@@ -92,4 +108,4 @@ load_module(app_selection)
 
 # ---- Footer ----
 st.markdown("---")
-st.markdown("© 2025 **Discover Software Solutions** • All rights reserved.")
+st.markdown(f"© 2025 **Discover Software Solutions** • Powered by [Enginuity API]({API_BASE_URL})")
