@@ -9,7 +9,7 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("flowcore")
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     """Renders the FlowCore - Digital Twin & Compliance dashboard."""
