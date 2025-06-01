@@ -11,6 +11,7 @@ def render_dashboard():
     """
     Renders the VisuAI dashboard for photorealistic rendering and ergonomic evaluation.
     """
+    st.set_page_config(page_title="VisuAI – Ergonomic & Visual Design", layout="wide")
     st.title("🎨 VisuAI – Rendering & Ergonomic Design")
     st.markdown("Generate photorealistic renders, optimize product forms, and evaluate ergonomic fit in 3D environments.")
 
