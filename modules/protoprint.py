@@ -1,52 +1,61 @@
+# modules/protoprint.py
+
 import streamlit as st
 import logging
-from typing import Optional
 
 # ✅ Setup logger properly
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("protoprint")
 
-# ✅ Streamlit Page Configuration
-st.set_page_config(page_title="ProtoPrint - Additive Manufacturing", layout="wide")
-st.title("🖨️ ProtoPrint - Additive Manufacturing")
-st.write("Simulate, slice, and recommend materials for 3D printing workflows.")
+def render_dashboard():
+    """
+    Renders the ProtoPrint dashboard for additive manufacturing simulation and material optimization.
+    """
+    st.title("🖨️ ProtoPrint – Additive Manufacturing")
+    st.markdown("Simulate slicing paths, recommend materials, and evaluate print ergonomics for optimized additive workflows.")
 
-# ✅ STL File Upload
-uploaded_stl = st.file_uploader("Upload STL File", type=["stl"])
-if uploaded_stl:
-    file_name = uploaded_stl.name
-    file_size = uploaded_stl.size / (1024 * 1024)  # Convert to MB
+    # ---- STL File Upload ----
+    uploaded_stl = st.file_uploader("📂 Upload STL File", type=["stl"])
+    if uploaded_stl:
+        file_name = uploaded_stl.name
+        file_size = uploaded_stl.size / (1024 * 1024)  # MB
 
-    if file_size > 100:  # ✅ File size limit
-        st.error(f"⚠ File too large ({file_size:.2f}MB). Please upload a model under 100MB.")
-    else:
-        st.success(f"✅ File '{file_name}' uploaded successfully.")
-        logger.info(f"STL File uploaded: {file_name} | Size: {file_size:.2f}MB")
+        if file_size > 100:
+            st.error(f"⚠ File too large ({file_size:.2f}MB). Please upload a model under 100MB.")
+            return
+        else:
+            st.success(f"✅ '{file_name}' uploaded successfully.")
+            logger.info(f"STL File: {file_name} | Size: {file_size:.2f}MB")
 
-        # ✅ Material Selection
-        material = st.selectbox("Select Material", ["PLA", "ABS", "PETG", "Nylon", "Resin"])
-        
-        # ✅ Layer Height Configuration
-        layer_height = st.slider("Layer Height (mm)", 0.05, 0.3, 0.1)
-        
-        # ✅ Printing Actions
-        if st.button("Simulate Print Path"):
-            st.info(f"📐 Simulating print path for '{file_name}' with {material} at {layer_height}mm layer height...")
-            st.success("✅ Print simulation completed!")
+            # ---- Print Settings ----
+            material = st.selectbox("🧪 Select Material", ["PLA", "ABS", "PETG", "Nylon", "Resin"])
+            layer_height = st.slider("📏 Layer Height (mm)", min_value=0.05, max_value=0.3, value=0.1, step=0.01)
 
-        if st.button("Run Material Recommendation"):
-            st.info(f"🔍 Evaluating material suitability for '{file_name}' with {material}...")
-            st.success("✅ Material recommendation completed!")
+            # ---- Print Simulation Actions ----
+            col1, col2 = st.columns(2)
 
-        # ✅ Print Summary
-        st.text_area("Print Summary", placeholder="Enter optimization insights, simulation feedback...", height=200)
+            with col1:
+                if st.button("📐 Simulate Print Path"):
+                    st.info(f"Simulating print path for '{file_name}' using {material} at {layer_height:.2f}mm...")
+                    st.success("✅ Print path simulation completed.")
 
-# ✅ Print Preview Panel
-st.markdown("### 📊 Print Preview")
-show_temp_zones = st.checkbox("Show temperature zones")
-enable_estimation = st.checkbox("Enable print time estimation")
+            with col2:
+                if st.button("🔍 Run Material Recommendation"):
+                    st.info(f"Recommending material for '{file_name}' based on slicing constraints...")
+                    st.success("✅ Material recommendation generated.")
 
-if show_temp_zones:
-    st.info("🌡️ Displaying temperature zones for layer fusion assessment.")
+            # ---- Print Summary Notes ----
+            st.markdown("### 🧠 Print Summary Notes")
+            st.text_area("Summary / Observations", placeholder="E.g., Best results at 0.1mm layer height with PETG for overhangs...", height=200)
 
-if enable_estimation:
-    st.info("⏱️ Estimating print duration based on selected parameters.")
+    # ---- Print Preview Settings ----
+    st.markdown("---")
+    st.markdown("### 📊 Print Preview Controls")
+
+    show_temp_zones = st.checkbox("🌡️ Show Temperature Zones for Layer Fusion")
+    enable_estimation = st.checkbox("⏱️ Enable Print Time Estimation")
+
+    if show_temp_zones:
+        st.info("🌡️ Visualizing thermal zones for layer fusion consistency.")
+
+    if enable_estimation:
+        st.info("⏱️ Estimating total print time based on selected settings.")
