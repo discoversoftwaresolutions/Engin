@@ -1,82 +1,93 @@
 import streamlit as st
-import pandas as pd
+import requests
+import json
 import logging
 
 # ✅ Must be the first Streamlit command
-st.set_page_config(page_title="CircuitIQ - PCB and Electronics", layout="wide")
+st.set_page_config(page_title="CircuitIQ – PCB & Supply Chain", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("circuitiq")
 
-# ✅ Title and Header
-st.title("🔌 CircuitIQ: PCB Design and Electronics Intelligence")
-st.caption("Auto-layout, signal integrity, and real-time BOM optimization via GPT-4.5 agents")
+# === Page Header ===
+st.title("🧠 CircuitIQ – PCB Optimization & Supply Chain Intelligence")
+st.markdown("Enhance circuit layouts, analyze power integrity, and check supply chain availability using intelligent agents.")
 
-# ✅ Sidebar Configuration Panel
-st.sidebar.title("CircuitIQ Configuration")
-pcb_file = st.sidebar.file_uploader("Upload PCB Layout (.brd/.kicad)", type=["brd", "kicad"])
-voltage = st.sidebar.slider("Voltage (V)", 1, 48, 12)
-current = st.sidebar.slider("Max Current (A)", 0.1, 10.0, 1.0)
-signal_type = st.sidebar.selectbox("Signal Type", ["Analog", "Digital", "Mixed Signal"])
-supply_chain_focus = st.sidebar.selectbox("Supply Chain Strategy", ["Lowest Cost", "Fastest Delivery", "Eco-friendly"])
+# === PCB Auto Layout Agent ===
+st.subheader("🧩 Auto Layout Generator")
+pcb_data = st.text_area("Upload Netlist / Schematic Data (JSON format)", value='{"components":[], "connections":[]}')
 
-if st.sidebar.button("Run Analysis"):
-    st.session_state["run_circuitiq"] = True
-    logger.info("✅ Analysis triggered with config: "
-                f"Voltage={voltage}, Current={current}, Signal={signal_type}, SupplyChain={supply_chain_focus}")
-
-# ✅ Tabs for Results
-tab1, tab2, tab3 = st.tabs(["📐 Auto Layout", "📶 Power Integrity", "📦 BOM + Supply Chain"])
-
-with tab1:
-    st.subheader("📐 Auto-Routed PCB Layout")
-    st.markdown("📌 Layout Summary:")
-    st.code(
-        "- Track Width: Auto-scaled for current\n"
-        "- Copper Pour: Enabled\n"
-        "- Via Count: 72\n"
-        "- Clearance: IPC Class II\n"
-        "- Routing complete with 98.6% success"
-    )
-    st.success("Layout optimization successful. Export available.")
-    st.image(
-        "https://circuitiq-public-assets.s3.amazonaws.com/pcb_layout_example.png",
-        caption="Generated PCB Layout",
-        use_container_width=True  # ✅ Updated parameter
-    )
-
-with tab2:
-    st.subheader("📶 Power Integrity Report")
-    st.markdown("🔋 Voltage Drop Map")
-
+if st.button("Generate PCB Layout"):
     try:
-        power_data = pd.DataFrame({
-            "Node": ["U1", "U2", "U3", "U4"],
-            "Voltage Drop (mV)": [12.5, 9.8, 15.3, 11.0],
-            "Temp Rise (°C)": [3.2, 2.7, 4.5, 3.1]
-        })
-        st.table(power_data)
-        logger.info("✅ Power integrity report generated successfully.")
-    except Exception as e:
-        st.error(f"⚠️ Error loading power integrity data: {e}")
-        logger.error(f"❌ Power integrity report failed: {e}")
+        payload = json.loads(pcb_data)
+    except json.JSONDecodeError:
+        st.error("⚠️ Invalid JSON format. Please check your input.")
+        logger.error("❌ JSON parsing error in PCB layout input.")
+    else:
+        try:
+            res = requests.post("http://localhost:8000/circuitiq/auto-layout", json=payload)
+            if res.status_code == 200:
+                response_data = res.json()
+                st.json(response_data)
+                image_url = response_data.get("layout_preview_url", "https://fallback-image-url.com/default.png")
+                st.image(image_url, caption="Generated PCB Layout", use_container_width=True)  # ✅ Dynamic preview
+                logger.info("✅ PCB layout generated successfully.")
+            else:
+                st.error(f"⚠️ API Error: {res.status_code} - {res.text}")
+                logger.error(f"❌ PCB layout API failed: {res.status_code} - {res.text}")
+        except Exception as e:
+            st.error(f"Failed to generate layout: {e}")
+            logger.error(f"❌ PCB layout request failed: {e}")
 
-with tab3:
-    st.subheader("📦 Component Availability + Alternatives")
-    st.markdown("✅ All components verified via supply chain agent.")
+# === Power Integrity Checker ===
+st.markdown("---")
+st.subheader("⚡ Power Integrity Checker")
+pi_data = st.text_area("Input Voltage/Current Profile (JSON)", value='{"voltage":3.3,"current":0.8,"trace_width":0.5}')
 
+if st.button("Check Power Integrity"):
     try:
-        st.code(
-            "- ATmega328P-AU → $2.15 @ 3 suppliers\n"
-            "- 16MHz Crystal → 5d delivery, MOQ 50\n"
-            "- 10k Resistor (0402) → In stock (4000 units)"
-        )
-        st.info("⚠️ GPT agent recommends alternate 8-bit MCU for cost savings.")
-        logger.info("✅ BOM analysis completed with supply chain validation.")
-    except Exception as e:
-        st.error(f"⚠️ Error fetching BOM data: {e}")
-        logger.error(f"❌ BOM analysis failed: {e}")
+        payload = json.loads(pi_data)
+    except json.JSONDecodeError:
+        st.error("⚠️ Invalid JSON format for power integrity input.")
+        logger.error("❌ JSON parsing error in power integrity input.")
+    else:
+        try:
+            res = requests.post("http://localhost:8000/circuitiq/power-integrity", json=payload)
+            if res.status_code == 200:
+                st.json(res.json())
+                logger.info("✅ Power integrity check completed successfully.")
+            else:
+                st.error(f"⚠️ API Error: {res.status_code} - {res.text}")
+                logger.error(f"❌ Power integrity API failed: {res.status_code} - {res.text}")
+        except Exception as e:
+            st.error(f"Power integrity check failed: {e}")
+            logger.error(f"❌ Power integrity request failed: {e}")
+
+# === Supply Chain Checker ===
+st.markdown("---")
+st.subheader("🚚 Supply Chain Availability")
+bom = st.text_area("Bill of Materials (JSON)", value='[{"part":"LM317","available":false}]')
+
+if st.button("Check Supply Chain"):
+    try:
+        payload = json.loads(bom)
+    except json.JSONDecodeError:
+        st.error("⚠️ Invalid JSON format for BOM input.")
+        logger.error("❌ JSON parsing error in BOM input.")
+    else:
+        try:
+            res = requests.post("http://localhost:8000/circuitiq/supply-chain", json=payload)
+            if res.status_code == 200:
+                result = res.json()
+                st.json(result)
+                logger.info("✅ Supply chain validation completed.")
+            else:
+                st.error(f"⚠️ API Error: {res.status_code} - {res.text}")
+                logger.error(f"❌ Supply chain API failed: {res.status_code} - {res.text}")
+        except Exception as e:
+            st.error(f"Supply chain check failed: {e}")
+            logger.error(f"❌ Supply chain request failed: {e}")
 
 # ✅ Footer
 st.markdown("---")
