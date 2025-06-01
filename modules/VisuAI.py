@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="VisuAI - Rendering & Ergonomics", layout="wide")
+
 
 st.title("🎨 VisuAI: Industrial Design & Ergonomics")
 st.caption("Shape refinement, photoreal rendering, and ergonomic validation powered by GPT-4.5")
