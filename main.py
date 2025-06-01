@@ -53,7 +53,7 @@ module_map = {
     "FlowCore – Digital Twin & Compliance": "modules.flowcore",
     "Simulai – Simulation AI": "modules.simulai",
     "VisuAI – Visual Intelligence": "modules.visuai",
-    "FusionX - Energy & Plasma": "modules.fusionx"
+    "FusionX - Energy & Plasma": "modules.fusionx",
     "ProtoPrint – Additive MFG": "modules.protoprint",
     "CircuitIQ – Electronics": "modules.circuitiq",
     "CodeMotion – Robotics Code": "modules.codemotion",
