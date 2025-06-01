@@ -8,7 +8,7 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("protoprint")
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/protoprint"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     """Renders the ProtoPrint dashboard for additive manufacturing simulation and material optimization."""
