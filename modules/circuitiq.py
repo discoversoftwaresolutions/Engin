@@ -3,8 +3,6 @@ import requests
 import json
 import logging
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="CircuitIQ – PCB & Supply Chain", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
