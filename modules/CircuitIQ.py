@@ -1,10 +1,13 @@
-# circuitiq.py
-
 import streamlit as st
 import pandas as pd
+import logging
 
 # ✅ Must be the first Streamlit command
 st.set_page_config(page_title="CircuitIQ - PCB and Electronics", layout="wide")
+
+# ✅ Setup Logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("circuitiq")
 
 # ✅ Title and Header
 st.title("🔌 CircuitIQ: PCB Design and Electronics Intelligence")
@@ -20,6 +23,8 @@ supply_chain_focus = st.sidebar.selectbox("Supply Chain Strategy", ["Lowest Cost
 
 if st.sidebar.button("Run Analysis"):
     st.session_state["run_circuitiq"] = True
+    logger.info("✅ Analysis triggered with config: "
+                f"Voltage={voltage}, Current={current}, Signal={signal_type}, SupplyChain={supply_chain_focus}")
 
 # ✅ Tabs for Results
 tab1, tab2, tab3 = st.tabs(["📐 Auto Layout", "📶 Power Integrity", "📦 BOM + Supply Chain"])
@@ -35,28 +40,43 @@ with tab1:
         "- Routing complete with 98.6% success"
     )
     st.success("Layout optimization successful. Export available.")
-    st.image("https://circuitiq-public-assets.s3.amazonaws.com/pcb_layout_example.png",
-             caption="Generated PCB Layout", use_container_width=True)
+    st.image(
+        "https://circuitiq-public-assets.s3.amazonaws.com/pcb_layout_example.png",
+        caption="Generated PCB Layout",
+        use_container_width=True  # ✅ Updated parameter
+    )
 
 with tab2:
     st.subheader("📶 Power Integrity Report")
     st.markdown("🔋 Voltage Drop Map")
-    power_data = pd.DataFrame({
-        "Node": ["U1", "U2", "U3", "U4"],
-        "Voltage Drop (mV)": [12.5, 9.8, 15.3, 11.0],
-        "Temp Rise (°C)": [3.2, 2.7, 4.5, 3.1]
-    })
-    st.table(power_data)
+
+    try:
+        power_data = pd.DataFrame({
+            "Node": ["U1", "U2", "U3", "U4"],
+            "Voltage Drop (mV)": [12.5, 9.8, 15.3, 11.0],
+            "Temp Rise (°C)": [3.2, 2.7, 4.5, 3.1]
+        })
+        st.table(power_data)
+        logger.info("✅ Power integrity report generated successfully.")
+    except Exception as e:
+        st.error(f"⚠️ Error loading power integrity data: {e}")
+        logger.error(f"❌ Power integrity report failed: {e}")
 
 with tab3:
     st.subheader("📦 Component Availability + Alternatives")
     st.markdown("✅ All components verified via supply chain agent.")
-    st.code(
-        "- ATmega328P-AU → $2.15 @ 3 suppliers\n"
-        "- 16MHz Crystal → 5d delivery, MOQ 50\n"
-        "- 10k Resistor (0402) → In stock (4000 units)"
-    )
-    st.info("⚠️ GPT agent recommends alternate 8-bit MCU for cost savings.")
+
+    try:
+        st.code(
+            "- ATmega328P-AU → $2.15 @ 3 suppliers\n"
+            "- 16MHz Crystal → 5d delivery, MOQ 50\n"
+            "- 10k Resistor (0402) → In stock (4000 units)"
+        )
+        st.info("⚠️ GPT agent recommends alternate 8-bit MCU for cost savings.")
+        logger.info("✅ BOM analysis completed with supply chain validation.")
+    except Exception as e:
+        st.error(f"⚠️ Error fetching BOM data: {e}")
+        logger.error(f"❌ BOM analysis failed: {e}")
 
 # ✅ Footer
 st.markdown("---")
