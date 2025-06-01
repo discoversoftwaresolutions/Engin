@@ -3,7 +3,7 @@ import logging
 import importlib
 from shared.config import module_map
 
-"https://enginuity-production.up.railway.app"
+API_BASE_URL = "https://enginuity-production.up.railway.app" 
 
 # ✅ Setup logger
 logging.basicConfig(level=logging.INFO)
