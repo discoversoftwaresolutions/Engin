@@ -3,24 +3,18 @@
 import requests
 import os
 import logging
+import json
+import asyncio
+import websockets
 
 logger = logging.getLogger("agent-client")
 
 API_BASE_URL = os.getenv("BACKEND_URL", "https://enginuity-backend.up.railway.app")
+WS_BASE_URL = API_BASE_URL.replace("https://", "wss://").replace("http://", "ws://")
 
+
+# === REST API ===
 def post_prompt_to_agent(module: str, prompt: str, simulation_type: str = None, action: str = "analyze") -> dict:
-    """
-    Sends a prompt to the selected agent module via HTTP POST.
-
-    Args:
-        module (str): Module slug (e.g., "aeroiq", "protoprint")
-        prompt (str): Task description or command
-        simulation_type (str): Optional submode or behavior
-        action (str): Action endpoint (default = "analyze")
-
-    Returns:
-        dict: Parsed response or error
-    """
     endpoint = f"{API_BASE_URL}/v1/{module}/{action}"
     payload = {"prompt": prompt}
     if simulation_type:
@@ -30,7 +24,6 @@ def post_prompt_to_agent(module: str, prompt: str, simulation_type: str = None, 
         logger.info(f"➡️ POST to {endpoint} | Payload: {payload}")
         response = requests.post(endpoint, json=payload)
         response.raise_for_status()
-        logger.info(f"✅ Response: {response.status_code}")
         return response.json()
     except requests.HTTPError as http_err:
         logger.error(f"❌ HTTP error from {endpoint}: {http_err}")
@@ -39,16 +32,9 @@ def post_prompt_to_agent(module: str, prompt: str, simulation_type: str = None, 
         logger.exception("❌ Unexpected error during agent call")
         return {"error": str(e)}
 
+
+# === Agent Ping (used for home page status) ===
 def ping_agent(module: str) -> bool:
-    """
-    Pings the module to check if the agent is reachable (for status badge).
-
-    Args:
-        module (str): Module slug
-
-    Returns:
-        bool: True if reachable, False otherwise
-    """
     try:
         health_url = f"{API_BASE_URL}/v1/{module}/healthz"
         response = requests.get(health_url, timeout=2)
@@ -56,3 +42,27 @@ def ping_agent(module: str) -> bool:
     except Exception as e:
         logger.warning(f"Agent {module} unreachable: {e}")
         return False
+
+
+# === WebSocket Streaming Support ===
+async def stream_agent_response(module: str, payload: dict, endpoint: str = "stream"):
+    """
+    Async generator that yields streamed tokens/messages from agent WebSocket.
+
+    Args:
+        module (str): Module slug
+        payload (dict): Command to send
+        endpoint (str): WebSocket subroute, defaults to `/stream`
+
+    Yields:
+        str: Streamed chunks or tokens
+    """
+    ws_uri = f"{WS_BASE_URL}/ws/{module}/{endpoint}"
+    try:
+        async with websockets.connect(ws_uri) as websocket:
+            await websocket.send(json.dumps(payload))
+            async for message in websocket:
+                yield message
+    except Exception as e:
+        logger.error(f"❌ WebSocket error with {ws_uri}: {e}")
+        yield json.dumps({"error": str(e)})
