@@ -1,17 +1,21 @@
-# modules/flowcore.py
-
 import streamlit as st
 import logging
+import requests
 from typing import Dict, Any
 from datetime import datetime
 
-# ✅ Setup logger properly
+# ✅ Must be the first Streamlit command
+st.set_page_config(page_title="FlowCore – Digital Twin & Compliance", layout="wide")
+
+# ✅ Setup Logger
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("flowcore")
 
+API_BASE_URL = "https://enginuity-production.up.railway.app/flowcore"  # ✅ Integrated production endpoint
+
 def render_dashboard():
-    """
-    Renders the FlowCore - Digital Twin & Compliance dashboard.
-    """
+    """Renders the FlowCore - Digital Twin & Compliance dashboard."""
+
     st.title("🔄 FlowCore – Digital Twin & Compliance")
     st.markdown("**Sync, validate, and observe engineering systems with real-time digital twins and compliance logic.**")
 
@@ -28,7 +32,8 @@ def render_dashboard():
 
     # ---- User Input ----
     st.subheader(f"📌 Selected Task: {task}")
-    prompt = st.text_area("📄 Describe the system state or objective:",
+    prompt = st.text_area(
+        "📄 Describe the system state or objective:",
         placeholder="e.g., Sync propulsion twin with telemetry snapshot from 2025-05-01T00:00Z..."
     )
 
@@ -41,20 +46,27 @@ def render_dashboard():
         timestamp = datetime.utcnow().isoformat()
         logger.info(f"[FlowCore] Task: {task} | Prompt: {prompt} | Timestamp: {timestamp}")
 
-        # ✅ Simulated execution result
-        result: Dict[str, Any] = {
-            "task": task,
-            "description": prompt,
-            "timestamp": timestamp,
-            "compliance_passed": True if "compliance" in task.lower() else None,
-            "message": "Digital twin task completed successfully.",
-            "sync_id": f"FLOW-{timestamp[:19].replace(':', '').replace('-', '')}",
-        }
-
-        # ✅ Display Output
-        st.success("✅ Task Completed")
-        st.json(result)
+        try:
+            res = requests.post(
+                f"{API_BASE_URL}/execute-task",
+                json={"task": task, "description": prompt, "timestamp": timestamp},
+                timeout=10
+            )
+            if res.status_code == 200:
+                response_data = res.json()
+                st.success("✅ Task Completed")
+                st.json(response_data)
+                logger.info("✅ FlowCore task executed successfully.")
+            else:
+                st.error(f"⚠️ API Error: {res.text}")
+                logger.error(f"❌ FlowCore API error: {res.status_code} - {res.text}")
+        except Exception as e:
+            st.error(f"⚠️ Failed to execute task: {e}")
+            logger.error(f"❌ API request failed: {e}")
 
     # ---- Footer ----
     st.markdown("---")
     st.markdown("FlowCore – A Discover Software Solutions Module • 2025")
+
+if __name__ == "__main__":
+    render_dashboard()
