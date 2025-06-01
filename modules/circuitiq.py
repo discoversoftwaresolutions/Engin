@@ -1,82 +1,54 @@
 # modules/circuitiq.py
 
 import streamlit as st
-import logging
-
-# ✅ Setup logger
-logger = logging.getLogger("circuithandler")
-
-def render_dashboard():
-    """
-    Renders the CircuitIQ dashboard for PCB and circuit simulation.
-    """
-    st.title("⚡ CircuitIQ – PCB & Circuit Simulation")
-    st.markdown("Autogenerate layouts, evaluate power integrity, and mitigate supply chain risks in electronics design.")
-
-    # ---- Upload Section ----
-    uploaded_schematic = st.file_uploader("📂 Upload Schematic / Board File", type=["brd", "sch", "kicad_pcb"])
-    if uploaded_schematic:
-        file_name = uploaded_schematic.name
-        file_size = uploaded_schematic.size / (1024 * 1024)
-
-        if file_size > 50:
-            st.error(f"⚠ File too large ({file_size:.2f}MB). Please upload a file under 50MB.")
-            return
-        else:
-            st.success(f"✅ Schematic '{file_name}' uploaded successfully.")
-            logger.info(f"📁 Uploaded schematic: {file_name} | Size: {file_size:.2f}MB")
-
-            # ---- Action Buttons ----
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                if st.button("📐 Auto-Generate Layout"):
-                    st.info(f"Generating PCB layout for '{file_name}'...")
-                    st.success("✅ Layout generation completed.")
-
-            with col2:
-                if st.button("⚡ Evaluate Power Integrity"):
-                    st.info(f"Analyzing power integrity for '{file_name}'...")
-                    st.success("✅ Power integrity check complete.")
-
-            with col3:
-                if st.button("🔍 Supply Chain Risk Assessment"):
-                    st.info(f"Assessing sourcing risk for components in '{file_name}'...")
-                    st.success("✅ Supply chain risk analysis complete.")
-
-            # ---- Circuit Notes ----
-            st.markdown("### 🧠 Circuit Agent Notes")
-            st.text_area("Design Observations", placeholder="Enter layout comments, analysis results...", height=180)
-import streamlit as st
 import requests
+import json
 
+# ✅ This must be the first Streamlit command
 st.set_page_config(page_title="CircuitIQ – PCB & Supply Chain", layout="wide")
 
-st.title("🔌 CircuitIQ – Supply Chain Analyzer")
+# === Page Header ===
+st.title("🧠 CircuitIQ – PCB Optimization & Supply Chain Intelligence")
+st.markdown("Enhance circuit layouts, analyze power integrity, and check supply chain availability using intelligent agents.")
 
-if "bom" not in st.session_state:
-    st.session_state["bom"] = [
-        {"part": "IC-LM317", "category": "regulator"},
-        {"part": "RES-10k", "category": "resistor"},
-        {"part": "CAP-100nF", "category": "capacitor", "available": True}
-    ]
+# === PCB Auto Layout Agent ===
+st.subheader("🧩 Auto Layout Generator")
+pcb_data = st.text_area("Upload Netlist / Schematic Data (JSON format)", value='{"components":[], "connections":[]}')
+if st.button("Generate PCB Layout"):
+    try:
+        payload = json.loads(pcb_data)
+        res = requests.post("http://localhost:8000/circuitiq/auto-layout", json=payload)
+        st.json(res.json())
+    except Exception as e:
+        st.error(f"Failed to generate layout: {e}")
 
-if st.button("🚦 Run Supply Chain Check"):
-    resp = requests.post(
-        "https://enginuity-backend.up.railway.app/api/v1/circuitiq/supply_chain/check",
-        json={"bom": st.session_state["bom"]}
-    )
-    result = resp.json()
-    if "error" in result:
-        st.error(result["error"])
-    else:
-        st.success("✅ Agent Review Complete")
+# === Power Integrity Checker ===
+st.markdown("---")
+st.subheader("⚡ Power Integrity Checker")
+pi_data = st.text_area("Input Voltage/Current Profile (JSON)", value='{"voltage":3.3,"current":0.8,"trace_width":0.5}')
+if st.button("Check Power Integrity"):
+    try:
+        payload = json.loads(pi_data)
+        res = requests.post("http://localhost:8000/circuitiq/power-integrity", json=payload)
+        st.json(res.json())
+    except Exception as e:
+        st.error(f"Power integrity check failed: {e}")
+
+# === Supply Chain Checker ===
+st.markdown("---")
+st.subheader("🚚 Supply Chain Availability")
+bom = st.text_area("Bill of Materials (JSON)", value='[{"part":"LM317","available":false}]')
+if st.button("Check Supply Chain"):
+    try:
+        payload = json.loads(bom)
+        res = requests.post("http://localhost:8000/circuitiq/supply-chain", json=payload)
+        result = res.json()
         st.json(result)
+    except Exception as e:
+        st.error(f"Supply chain check failed: {e}")
 
-    # ---- Bill of Materials Panel ----
-    st.markdown("---")
-    st.markdown("### 📋 Bill of Materials (BoM) Options")
-    check_inventory = st.checkbox("🔄 Check Inventory with Preferred Vendors")
-
-    if check_inventory:
-        st.info("📦 Verifying part availability and identifying alternatives from vendor APIs...")
+# === Layout Preview (Optional Visualization) ===
+st.markdown("---")
+st.subheader("📐 Layout Preview")
+image_url = "https://example.com/layout_preview.png"  # Replace with actual rendered image endpoint
+st.image(image_url, caption="Generated PCB Layout", use_container_width=True)
