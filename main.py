@@ -3,6 +3,7 @@ import logging
 import importlib
 import sys
 import os
+import traceback
 
 # ✅ Configure Streamlit Page FIRST
 st.set_page_config(
@@ -70,8 +71,11 @@ def load_module(module_key: str):
         st.error(f"❌ Unable to load `{module_name}`. Using fallback module.")
         fallback_to_home()
     except Exception as e:
-        logger.exception(f"🔥 Unexpected error while loading module `{module_name}`: {e}")
-        st.error("⚠ Unexpected error occurred while loading the module.")
+        tb = traceback.format_exc()
+        logger.exception(f"🔥 Unexpected error while loading `{module_name}`: {e}")
+        st.error(f"⚠ Unexpected error occurred while loading `{module_name}`.")
+        with st.expander("🔍 Technical Details"):
+            st.code(tb, language="python")
         fallback_to_home()
 
 # ---- Fallback Logic ----
