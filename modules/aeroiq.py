@@ -3,11 +3,11 @@ import requests
 import logging
 from typing import Dict, Optional
 
-# 🚫 DO NOT include st.set_page_config() here
-
 # ✅ Setup Logger Properly
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+API_BASE_URL = "https://enginuity-production.up.railway.app/aeroiq"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
@@ -37,8 +37,11 @@ def render_dashboard():
         file_size = uploaded_file.size / (1024 * 1024)
         if file_size > 50:
             st.error(f"⚠ File too large ({file_size:.2f}MB). Please upload a file under 50MB.")
+            logger.warning(f"❌ File '{file_name}' exceeds allowed size limit.")
             return
+
         st.success(f"✅ File '{file_name}' uploaded successfully.")
+        logger.info(f"File uploaded: {file_name} | Size: {file_size:.2f}MB")
 
     if st.button("Run Task"):
         if not prompt.strip():
@@ -49,16 +52,16 @@ def render_dashboard():
         try:
             files = {"file": uploaded_file.getvalue()} if uploaded_file else None
             payload = {"task": task, "prompt": prompt}
-            response = requests.post("http://localhost:8000/api/v1/aeroiq/run", json=payload, files=files)
 
-            if response.status_code == 200:
-                result = response.json()
+            res = requests.post(f"{API_BASE_URL}/run-task", json=payload, files=files, timeout=10)
+            if res.status_code == 200:
+                result = res.json()
                 st.success("✅ Task Completed Successfully!")
                 st.json(result)
                 logger.info(f"Task '{task}' executed successfully with prompt: {prompt}")
             else:
-                st.error(f"❌ Backend Error [{response.status_code}]: {response.text}")
-                logger.error(f"API Error: {response.status_code} | Response: {response.text}")
+                st.error(f"❌ Backend Error [{res.status_code}]: {res.text}")
+                logger.error(f"API Error: {res.status_code} | Response: {res.text}")
 
         except requests.exceptions.RequestException as e:
             st.error(f"❌ API Request Failed: {str(e)}")
