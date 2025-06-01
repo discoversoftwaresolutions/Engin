@@ -7,7 +7,7 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("codemotion")
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/codemotion"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
 
 def render_dashboard():
     """Renders the CodeMotion dashboard for robotics and embedded systems development."""
