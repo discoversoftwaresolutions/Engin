@@ -4,8 +4,6 @@ import logging
 import requests
 from shared.api import post_prompt_to_agent
 
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="FusionX – CAD + CAM Intelligence", layout="wide")
 
 # ✅ Setup Logger
 logging.basicConfig(level=logging.INFO)
