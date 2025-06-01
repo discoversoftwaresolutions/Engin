@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="CodeMotion - Robotics & Embedded Systems", layout="wide")
+
 
 st.title("🤖 CodeMotion: Robotics and Embedded Engineering Intelligence")
 st.caption("Firmware generation, ROS2 integration, and simulated behavior design with GPT-4.5")
