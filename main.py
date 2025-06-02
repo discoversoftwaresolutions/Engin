@@ -47,6 +47,7 @@ app_selection = st.sidebar.radio(
         "Home",
         "AeroIQ – Aerospace",
         "FlowCore – Digital Twin & Compliance",
+        "FusionX - Energy & Plasma
         "Simulai – Simulation AI",
         "VisuAI – Visual Intelligence",
         "ProtoPrint – Additive MFG",
