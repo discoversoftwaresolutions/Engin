@@ -38,21 +38,30 @@ if MODULES_DIR not in sys.path:
 API_BASE_URL = "https://enginuity-production.up.railway.app"
 
 # ========================
+# 🔁 Module Map (Updated for Root Modules)
+# ========================
+module_map = {
+    "Home": "modules.home",
+    "AeroIQ - Aerospace": "aeroiq",  # ✅ Adjusted for root directory
+    "FlowCore - Digital Twin & Compliance": "modules.flowcore",
+    "FusionX - Energy & Plasma": "fusionx",  # ✅ Adjusted for root directory
+    "Simulai - Simulation AI": "modules.simulai",
+    "VisuAI - Visual Intelligence": "modules.visuai",
+    "ProtoPrint - Additive MFG": "modules.protoprint",
+    "CircuitIQ - Electronics": "modules.circuitiq",
+    "CodeMotion - Robotics Code": "modules.codemotion",
+}
+
+# ========================
 # 📌 Sidebar Navigation
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
 
-routes = [
-    "Home",
-    "AeroIQ - Aerospace",
-    "FlowCore - Digital Twin & Compliance",
-    "Simulai - Simulation AI",
-    "FusionX - Energy & Plasma",
-    "VisuAI - Visual Intelligence",
-    "ProtoPrint - Additive MFG",
-    "CircuitIQ - Electronics",
-    "CodeMotion - Robotics Code"
-]
+routes = list(module_map.keys())  # Dynamically pull names from module_map
+app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
+
+logger.info(f"📌 User selected: {app_selection}")
+
 # ========================
 # 🚨 Pre-load all modules to catch import errors early
 # ========================
@@ -68,25 +77,6 @@ for mod_name in preload_modules:
     except Exception as e:
         logger.exception(f"🔥 Unexpected preload error for {mod_name}: {e}")
         st.sidebar.error(f"⚠ Error preloading `{mod_name}`: {str(e)}")
-
-app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
-
-logger.info(f"📌 User selected: {app_selection}")
-
-# ========================
-# 🔁 Module Map (Updated for Root Modules)
-# ========================
-module_map = {
-    "Home": "modules.home",
-    "AeroIQ - Aerospace": "aeroiq",  # ✅ Adjusted for root directory
-    "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "fusionx",  # ✅ Adjusted for root directory
-    "Simulai - Simulation AI": "modules.simulai",
-    "VisuAI - Visual Intelligence": "modules.visuai",
-    "ProtoPrint - Additive MFG": "modules.protoprint",
-    "CircuitIQ - Electronics": "modules.circuitiq",
-    "CodeMotion - Robotics Code": "modules.codemotion",
-}
 
 # ========================
 # 🔌 API Status Check
