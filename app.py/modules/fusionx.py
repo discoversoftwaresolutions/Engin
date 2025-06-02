@@ -5,7 +5,7 @@ import requests
 from shared.api import post_prompt_to_agent
 
 
-API_BASE_URL = "https://enginuity-production.up.railway.app/fusionx"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app/fusionx"  
 
 def render_dashboard():
     """Renders the FusionX CAD + CAM Intelligence dashboard."""
