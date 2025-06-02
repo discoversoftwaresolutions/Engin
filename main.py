@@ -56,7 +56,12 @@ module_map = {
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
 
-routes = list(module_map.keys())  # Dynamically pull names from module_map
+# Ensure module_map exists before using it
+if "module_map" in globals():
+    routes = sorted(module_map.keys())  # Dynamically pull names from module_map
+else:
+    routes = ["Home"]  # Fallback option
+
 app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
 
 logger.info(f"📌 User selected: {app_selection}")
