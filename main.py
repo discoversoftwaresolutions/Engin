@@ -25,25 +25,18 @@ logging.basicConfig(
 logger = logging.getLogger("enginuity-main")
 
 # ========================
-# 📁 Ensure Module Pathing
+# 🌐 API Configuration
 # ========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-APP_DIR = os.path.join(BASE_DIR, "app")
-if APP_DIR not in sys.path:
-    sys.path.insert(0, APP_DIR)
-
-MODULES_DIR = os.path.join(BASE_DIR, "modules")
-if MODULES_DIR not in sys.path:
-    sys.path.insert(0, MODULES_DIR)
+API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Defined before use
 
 # ========================
-# 🔁 Module Map (Updated for Root Modules)
+# 🔁 Module Map (Ensuring Proper Order)
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ - Aerospace": "app.aeroiq",  # ✅ Adjusted for root directory
+    "AeroIQ - Aerospace": "app.aeroiq",
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "app.fusionx",  # ✅ Adjusted for root directory
+    "FusionX - Energy & Plasma": "app.fusionx",
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
@@ -56,15 +49,22 @@ module_map = {
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
 
-# Ensure module_map exists before using it
-if "module_map" in globals():
-    routes = sorted(module_map.keys())  # Dynamically pull names from module_map
-else:
-    routes = ["Home"]  # Fallback option
-
+routes = list(module_map.keys())  # ✅ Ensuring `module_map` exists before using it
 app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
 
 logger.info(f"📌 User selected: {app_selection}")
+
+# ========================
+# 📁 Ensure Module Pathing
+# ========================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_DIR = os.path.join(BASE_DIR, "app")
+if APP_DIR not in sys.path:
+    sys.path.insert(0, APP_DIR)
+
+MODULES_DIR = os.path.join(BASE_DIR, "modules")
+if MODULES_DIR not in sys.path:
+    sys.path.insert(0, MODULES_DIR)
 
 # ========================
 # 🚨 Pre-load all modules to catch import errors early
