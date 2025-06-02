@@ -45,11 +45,13 @@ st.sidebar.title("🧠 Enginuity Suite")
 app_selection = st.sidebar.radio(
     
     "🔬 Select Engineering Module:",
-    routes = [
+   
+    
+]routes = [
     "Home",
     "AeroIQ - Aerospace",
     "FlowCore - Digital Twin & Compliance",
-    "FusionX - Energy & Plasma",
+    "FusionX - Energy & Plasma",  # Ensure complete quotes
     "Simulai - Simulation AI",
     "VisuAI - Visual Intelligence",
     "ProtoPrint - Additive MFG",
