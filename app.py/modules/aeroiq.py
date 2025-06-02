@@ -1,7 +1,4 @@
 from pathlib import Path
-
-# Define full production-ready Streamlit file for AeroIQ
-aeroiq_full_code = """
 import streamlit as st
 import requests
 import logging
