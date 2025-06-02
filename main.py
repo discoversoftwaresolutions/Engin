@@ -137,4 +137,6 @@ def fallback_to_home():
     try:
         import modules.home as fallback
         fallback.render_dashboard()
-    except Exception
+    except Exception as fallback_err:
+        logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
+        st.error("🚫 Critical error: Unable to load any dashboard modules.")
