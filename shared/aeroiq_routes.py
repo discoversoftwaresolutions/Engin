@@ -1,4 +1,4 @@
-AEROIQ_BACKEND_URL = "http://localhost:8000/api/v1/aeroiq"
+AEROIQ_BACKEND_URL =  "https://your-railway-app-name.up.railway.app/api/v1/aeroiq"
 
 ROUTES = {
     "run_task": f"{AEROIQ_BACKEND_URL}/run",
