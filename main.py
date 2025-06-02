@@ -28,23 +28,22 @@ logger = logging.getLogger("enginuity-main")
 # 📁 Ensure Module Pathing
 # ========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_DIR = os.path.join(BASE_DIR, "app")
+if APP_DIR not in sys.path:
+    sys.path.insert(0, APP_DIR)
+
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
 if MODULES_DIR not in sys.path:
     sys.path.insert(0, MODULES_DIR)
-
-# ========================
-# 🌐 API Configuration
-# ========================
-API_BASE_URL = "https://enginuity-production.up.railway.app"
 
 # ========================
 # 🔁 Module Map (Updated for Root Modules)
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ - Aerospace": "aeroiq",  # ✅ Adjusted for root directory
+    "AeroIQ - Aerospace": "app.aeroiq",  # ✅ Adjusted for root directory
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "fusionx",  # ✅ Adjusted for root directory
+    "FusionX - Energy & Plasma": "app.fusionx",  # ✅ Adjusted for root directory
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
