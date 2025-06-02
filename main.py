@@ -41,20 +41,23 @@ API_BASE_URL = "https://enginuity-production.up.railway.app"
 # 📌 Sidebar Navigation
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
+
 app_selection = st.sidebar.radio(
+    
     "🔬 Select Engineering Module:",
-    [
-        "Home",
-        "AeroIQ – Aerospace",
-        "FlowCore – Digital Twin & Compliance",
-        "FusionX - Energy & Plasma",
-        "Simulai – Simulation AI",
-        "VisuAI – Visual Intelligence",
-        "ProtoPrint – Additive MFG",
-        "CircuitIQ – Electronics",
-        "CodeMotion – Robotics Code"
-    ],
-    index=0
+    routes = [
+    "Home",
+    "AeroIQ - Aerospace",
+    "FlowCore - Digital Twin & Compliance",
+    "FusionX - Energy & Plasma",
+    "Simulai - Simulation AI",
+    "VisuAI - Visual Intelligence",
+    "ProtoPrint - Additive MFG",
+    "CircuitIQ - Electronics",
+    "CodeMotion - Robotics Code"
+]
+
+                                 
 )
 logger.info(f"📌 User selected: {app_selection}")
 
