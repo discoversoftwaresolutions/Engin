@@ -196,6 +196,66 @@ def plot_orbit_3d(semi_major_axis_km, eccentricity, inclination_deg):
         showlegend=True
     )
     return fig
+import streamlit as st
+import requests
+import json
+
+st.markdown("## 🧠 Agentic Pipeline Executor")
+
+# Define a simple default task pipeline
+default_pipeline = [
+    {
+        "task_type": "predict_orbit",
+        "payload": {"altitude_km": 400, "velocity_km_s": 7.66}
+    },
+    {
+        "task_type": "optimize_nozzle",
+        "payload": {"altitude": 30000, "diameter": 0.5}
+    },
+    {
+        "task_type": "stress_analysis",
+        "payload": {"material": "carbon", "load": 150}
+    }
+]
+
+import streamlit as st
+import requests
+import json
+
+st.markdown("## 🧠 Agentic Pipeline Executor")
+
+# Define a simple default task pipeline
+default_pipeline = [
+    {
+        "task_type": "predict_orbit",
+        "payload": {"altitude_km": 400, "velocity_km_s": 7.66}
+    },
+    {
+        "task_type": "optimize_nozzle",
+        "payload": {"altitude": 30000, "diameter": 0.5}
+    },
+    {
+        "task_type": "stress_analysis",
+        "payload": {"material": "carbon", "load": 150}
+    }
+]
+
+pipeline_json = st.text_area("📝 Define Your Task Pipeline (JSON)", value=json.dumps(default_pipeline, indent=2), height=300)
+
+if st.button("🔁 Execute Task Pipeline"):
+    try:
+        parsed_pipeline = json.loads(pipeline_json)
+        response = requests.post(
+            "https://enginuity-production.up.railway.app/aeroiq/execute_pipeline",
+            json={"pipeline": parsed_pipeline}
+        )
+        response.raise_for_status()
+        st.success("✅ Pipeline executed successfully.")
+        st.json(response.json())
+    except json.JSONDecodeError:
+        st.error("❌ Invalid JSON format. Please check your pipeline.")
+    except requests.RequestException as e:
+        st.error(f"🔥 API Error: {e}")
 
     st.markdown("---")
     st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
