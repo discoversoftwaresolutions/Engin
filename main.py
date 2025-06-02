@@ -42,16 +42,11 @@ API_BASE_URL = "https://enginuity-production.up.railway.app"
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
 
-app_selection = st.sidebar.radio(
-    
-    "🔬 Select Engineering Module:",
-   
-    
-]routes = [
+routes = [
     "Home",
     "AeroIQ - Aerospace",
     "FlowCore - Digital Twin & Compliance",
-    "FusionX - Energy & Plasma",  # Ensure complete quotes
+    "FusionX - Energy & Plasma",
     "Simulai - Simulation AI",
     "VisuAI - Visual Intelligence",
     "ProtoPrint - Additive MFG",
@@ -59,8 +54,8 @@ app_selection = st.sidebar.radio(
     "CodeMotion - Robotics Code"
 ]
 
-                                 
-)
+app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
+
 logger.info(f"📌 User selected: {app_selection}")
 
 # ========================
@@ -68,13 +63,14 @@ logger.info(f"📌 User selected: {app_selection}")
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ – Aerospace": "modules.aeroiq",
-    "FlowCore – Digital Twin & Compliance": "modules.flowcore",
-    "Simulai – Simulation AI": "modules.simulai",
-    "VisuAI – Visual Intelligence": "modules.visuai",
-    "ProtoPrint – Additive MFG": "modules.protoprint",
-    "CircuitIQ – Electronics": "modules.circuitiq",
-    "CodeMotion – Robotics Code": "modules.codemotion",
+    "AeroIQ - Aerospace": "modules.aeroiq",
+    "FlowCore - Digital Twin & Compliance": "modules.flowcore",
+    "FusionX - Energy & Plasma": "modules.fusionx",
+    "Simulai - Simulation AI": "modules.simulai",
+    "VisuAI - Visual Intelligence": "modules.visuai",
+    "ProtoPrint - Additive MFG": "modules.protoprint",
+    "CircuitIQ - Electronics": "modules.circuitiq",
+    "CodeMotion - Robotics Code": "modules.codemotion",
 }
 
 # ========================
