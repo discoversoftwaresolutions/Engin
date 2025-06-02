@@ -24,11 +24,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("enginuity-main")
 
-
-app=[
-    "FusionX - Energy & Plasma": "app.fusionx",
-    "AeroIQ - Aerospace": "app.aeroiq"
-    
 # ========================
 # 📁 Ensure Module Pathing
 # ========================
