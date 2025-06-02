@@ -25,62 +25,51 @@ logging.basicConfig(
 logger = logging.getLogger("enginuity-main")
 
 # ========================
-# 🌐 API Configuration
-# ========================
-API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Defined before use
-
-# ========================
-# 🔁 Module Map (Ensuring Proper Order)
-# ========================
-module_map = {
-    "Home": "modules.home",
-    "AeroIQ - Aerospace": "app.aeroiq",
-    "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "app.fusionx",
-    "Simulai - Simulation AI": "modules.simulai",
-    "VisuAI - Visual Intelligence": "modules.visuai",
-    "ProtoPrint - Additive MFG": "modules.protoprint",
-    "CircuitIQ - Electronics": "modules.circuitiq",
-    "CodeMotion - Robotics Code": "modules.codemotion",
-}
-
-# ========================
-# 📌 Sidebar Navigation
-# ========================
-st.sidebar.title("🧠 Enginuity Suite")
-
-routes = list(module_map.keys())  # ✅ Ensuring `module_map` exists before using it
-app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
-
-logger.info(f"📌 User selected: {app_selection}")
-
-# ========================
 # 📁 Ensure Module Pathing
 # ========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-APP_DIR = os.path.join(BASE_DIR, "app")
-if APP_DIR not in sys.path:
-    sys.path.insert(0, APP_DIR)
-
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
 if MODULES_DIR not in sys.path:
     sys.path.insert(0, MODULES_DIR)
 
 # ========================
-# 🚨 Pre-load all modules to catch import errors early
+# 🌐 API Configuration
 # ========================
-preload_modules = list(module_map.values())
+API_BASE_URL = "https://enginuity-production.up.railway.app"
 
-for mod_name in preload_modules:
-    try:
-        importlib.import_module(mod_name)
-        logger.info(f"✅ Preloaded: {mod_name}")
-    except ModuleNotFoundError as e:
-        logger.error(f"❌ Module not found during preload: {mod_name} | {e}")
-        st.sidebar.error(f"❌ Failed to preload: `{mod_name}`")
-    except Exception as e:
-        logger.exception(f"🔥 Unexpected preload error for {mod_name}: {e}")
-        st.sidebar.error(f"⚠ Error preloading `{mod_name}`: {str(e)}")
+# ========================
+# 📌 Sidebar Navigation
+# ========================
+st.sidebar.title("🧠 Enginuity Suite")
+app_selection = st.sidebar.radio(
+    "🔬 Select Engineering Module:",
+    [
+        "Home",
+        "AeroIQ – Aerospace",
+        "FlowCore – Digital Twin & Compliance",
+        "Simulai – Simulation AI",
+        "VisuAI – Visual Intelligence",
+        "ProtoPrint – Additive MFG",
+        "CircuitIQ – Electronics",
+        "CodeMotion – Robotics Code"
+    ],
+    index=0
+)
+logger.info(f"📌 User selected: {app_selection}")
+
+# ========================
+# 🔁 Module Map
+# ========================
+module_map = {
+    "Home": "modules.home",
+    "AeroIQ – Aerospace": "modules.aeroiq",
+    "FlowCore – Digital Twin & Compliance": "modules.flowcore",
+    "Simulai – Simulation AI": "modules.simulai",
+    "VisuAI – Visual Intelligence": "modules.visuai",
+    "ProtoPrint – Additive MFG": "modules.protoprint",
+    "CircuitIQ – Electronics": "modules.circuitiq",
+    "CodeMotion – Robotics Code": "modules.codemotion",
+}
 
 # ========================
 # 🔌 API Status Check
@@ -134,3 +123,17 @@ def fallback_to_home():
     except Exception as fallback_err:
         logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
         st.error("🚫 Critical error: Unable to load any dashboard modules.")
+
+# ========================
+# 🚀 Launch Selected Module
+# ========================
+load_module(app_selection)
+
+# ========================
+# 📎 Footer
+# ========================
+st.markdown("---")
+st.markdown(
+    f"© 2025 **Discover Software Solutions** • "
+    f"Powered by [Enginuity API]({API_BASE_URL})"
+)
