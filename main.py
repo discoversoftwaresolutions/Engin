@@ -53,6 +53,21 @@ routes = [
     "CircuitIQ - Electronics",
     "CodeMotion - Robotics Code"
 ]
+# ========================
+# 🚨 Pre-load all modules to catch import errors early
+# ========================
+preload_modules = list(module_map.values())
+
+for mod_name in preload_modules:
+    try:
+        importlib.import_module(mod_name)
+        logger.info(f"✅ Preloaded: {mod_name}")
+    except ModuleNotFoundError as e:
+        logger.error(f"❌ Module not found during preload: {mod_name} | {e}")
+        st.sidebar.error(f"❌ Failed to preload: `{mod_name}`")
+    except Exception as e:
+        logger.exception(f"🔥 Unexpected preload error for {mod_name}: {e}")
+        st.sidebar.error(f"⚠ Error preloading `{mod_name}`: {str(e)}")
 
 app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
 
