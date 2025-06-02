@@ -13,7 +13,7 @@ from modules.orbital_sim import compute_orbit
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
+API_BASE_URL = "https://enginuity-production.up.railway.app/aeroiq"  # ✅ Integrated production endpoint
 
 # ✅ Supersonic Boom Physics Logic
 def compute_wavefronts(mach: float, altitude_ft: float, num_points: int = 100):
