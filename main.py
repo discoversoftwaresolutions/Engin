@@ -4,28 +4,42 @@ import importlib
 import sys
 import os
 import traceback
-import requests  # ✅ Added requests for API communication
+import requests  # ✅ Used for backend API connectivity
 
-# ✅ Configure Streamlit Page FIRST
+# ========================
+# 🔧 Streamlit Page Config
+# ========================
 st.set_page_config(
     page_title="Enginuity Agentic Suite",
     layout="wide",
     page_icon="🧠"
 )
 
-# ✅ Setup Logger
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+# ========================
+# 📋 Logger Configuration
+# ========================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
 logger = logging.getLogger("enginuity-main")
 
-# ✅ Ensure modules path is included in sys.path
+# ========================
+# 📁 Ensure Module Pathing
+# ========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
 if MODULES_DIR not in sys.path:
     sys.path.insert(0, MODULES_DIR)
 
-API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production API
+# ========================
+# 🌐 API Configuration
+# ========================
+API_BASE_URL = "https://enginuity-production.up.railway.app"
 
-# ---- Sidebar Navigation ----
+# ========================
+# 📌 Sidebar Navigation
+# ========================
 st.sidebar.title("🧠 Enginuity Suite")
 app_selection = st.sidebar.radio(
     "🔬 Select Engineering Module:",
@@ -39,14 +53,14 @@ app_selection = st.sidebar.radio(
         "CircuitIQ – Electronics",
         "CodeMotion – Robotics Code"
     ],
-    index=0  # Default selection is 'Home'
+    index=0
 )
-
 logger.info(f"📌 User selected: {app_selection}")
 
-# ---- Module Mapping ----
+# ========================
+# 🔁 Module Map
+# ========================
 module_map = {
-    
     "Home": "modules.home",
     "AeroIQ – Aerospace": "modules.aeroiq",
     "FlowCore – Digital Twin & Compliance": "modules.flowcore",
@@ -57,7 +71,9 @@ module_map = {
     "CodeMotion – Robotics Code": "modules.codemotion",
 }
 
-# ---- API Status Check ----
+# ========================
+# 🔌 API Status Check
+# ========================
 try:
     res = requests.get(f"{API_BASE_URL}/status", timeout=5)
     if res.status_code == 200:
@@ -70,7 +86,9 @@ except requests.exceptions.RequestException as e:
     st.sidebar.warning("⚠️ Unable to connect to API.")
     logger.error(f"❌ API connection failed: {e}", exc_info=True)
 
-# ---- Dynamic Module Loading ----
+# ========================
+# 🔄 Dynamic Module Loader
+# ========================
 def load_module(module_key: str):
     """Dynamically loads selected engineering module."""
     module_name = module_map.get(module_key, "modules.home")
@@ -94,7 +112,9 @@ def load_module(module_key: str):
             st.code(tb, language="python")
         fallback_to_home()
 
-# ---- Fallback Logic ----
+# ========================
+# 🚨 Fallback Loader
+# ========================
 def fallback_to_home():
     """Fallback mechanism to load default Home module in case of failure."""
     try:
@@ -104,9 +124,16 @@ def fallback_to_home():
         logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
         st.error("🚫 Critical error: Unable to load any dashboard modules.")
 
-# ---- Run Selected Module ----
+# ========================
+# 🚀 Launch Selected Module
+# ========================
 load_module(app_selection)
 
-# ---- Footer ----
+# ========================
+# 📎 Footer
+# ========================
 st.markdown("---")
-st.markdown(f"© 2025 **Discover Software Solutions** • Powered by [Enginuity API]({API_BASE_URL})")
+st.markdown(
+    f"© 2025 **Discover Software Solutions** • "
+    f"Powered by [Enginuity API]({API_BASE_URL})"
+)
