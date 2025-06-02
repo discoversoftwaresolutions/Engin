@@ -59,13 +59,13 @@ app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
 logger.info(f"📌 User selected: {app_selection}")
 
 # ========================
-# 🔁 Module Map
+# 🔁 Module Map (Updated for Root Modules)
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ - Aerospace": "modules.aeroiq",
+    "AeroIQ - Aerospace": "aeroiq",  # ✅ Adjusted for root directory
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "modules.fusionx",
+    "FusionX - Energy & Plasma": "fusionx",  # ✅ Adjusted for root directory
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
@@ -122,20 +122,4 @@ def fallback_to_home():
     try:
         import modules.home as fallback
         fallback.render_dashboard()
-    except Exception as fallback_err:
-        logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
-        st.error("🚫 Critical error: Unable to load any dashboard modules.")
-
-# ========================
-# 🚀 Launch Selected Module
-# ========================
-load_module(app_selection)
-
-# ========================
-# 📎 Footer
-# ========================
-st.markdown("---")
-st.markdown(
-    f"© 2025 **Discover Software Solutions** • "
-    f"Powered by [Enginuity API]({API_BASE_URL})"
-)
+    except Exception
