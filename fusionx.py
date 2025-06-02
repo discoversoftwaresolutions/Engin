@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import logging
 import requests
-from shared.api import post_prompt_to_agent
+
 
 
 API_BASE_URL = "https://enginuity-production.up.railway.app/fusionx"  
