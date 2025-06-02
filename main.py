@@ -24,6 +24,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("enginuity-main")
 
+
+app=[
+    "FusionX - Energy & Plasma": "app.fusionx",
+    "AeroIQ - Aerospace": "app.aeroiq"
+    
 # ========================
 # 📁 Ensure Module Pathing
 # ========================
@@ -46,8 +51,8 @@ routes = [
     "Home",
     "AeroIQ - Aerospace",
     "FlowCore - Digital Twin & Compliance",
-    "FusionX - Energy & Plasma",
     "Simulai - Simulation AI",
+    "FusionX - Energy & Plasma",
     "VisuAI - Visual Intelligence",
     "ProtoPrint - Additive MFG",
     "CircuitIQ - Electronics",
@@ -63,9 +68,9 @@ logger.info(f"📌 User selected: {app_selection}")
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ - Aerospace": "modules.aeroiq",
+    "AeroIQ - Aerospace": "app.aeroiq",
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "modules.fusionx",
+    "FusionX - Energy & Plasma": "app.fusionx",
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
