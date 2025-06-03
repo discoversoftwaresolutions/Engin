@@ -154,3 +154,10 @@ if aeroiq_module:
         aeroiq_module.render_dashboard()
     except Exception as e:
         st.error(f"Failed to render AeroIQ dashboard: {e}")
+import sys
+import streamlit as st
+
+st.markdown("### 🔍 sys.modules loaded:")
+for name in sorted(sys.modules.keys()):
+    if "aeroiq" in name or "fusionx" in name or "module" in name:
+        st.code(name)
