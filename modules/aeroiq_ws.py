@@ -3,7 +3,7 @@ import websockets
 import json
 import logging
 
-API_BASE_URL = "https://enginuity-production.up.railway.app" 
+API_BASE_URL = "https://enginuity-production.up.railway.app/aeroiq" 
 
 # ✅ Setup logger
 logger = logging.getLogger("aeroiq_ws")
