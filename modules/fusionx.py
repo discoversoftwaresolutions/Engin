@@ -3,7 +3,9 @@ import pandas as pd
 import logging
 import requests
 
-
+# ✅ Initialize logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 API_BASE_URL = "https://enginuity-production.up.railway.app/fusionx"  
 
@@ -104,6 +106,3 @@ def render_dashboard():
     except Exception as e:
         st.error("❌ FusionX encountered an unexpected issue.")
         logger.error(f"❌ Dashboard Error: {str(e)}")
-
-if __name__ == "__main__":
-    render_dashboard()
