@@ -4,10 +4,7 @@ import importlib
 import sys
 import os
 import traceback
-import requests  # ✅ Used for backend API connectivity
-import sys
-import os
-sys.path.insert(0, os.path.abspath("."))  # Add current working dir to path
+import requests
 
 # ========================
 # 🔧 Streamlit Page Config
@@ -30,16 +27,16 @@ logger = logging.getLogger("enginuity-main")
 # ========================
 # 🌐 API Configuration
 # ========================
-API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Defined before use
+API_BASE_URL = "https://enginuity-production.up.railway.app"
 
 # ========================
-# 🔁 Module Map (Ensuring Proper Order)
+# 🧭 Module Map (Routing)
 # ========================
 module_map = {
     "Home": "modules.home",
     "AeroIQ - Aerospace": "modules.aeroiq",
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "moduels.fusionx",
+    "FusionX - Energy & Plasma": "modules.fusionx",  # ✅ fixed typo
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
@@ -48,33 +45,41 @@ module_map = {
 }
 
 # ========================
-# 📌 Sidebar Navigation
-# ========================
-st.sidebar.title("🧠 Enginuity Suite")
-
-routes = list(module_map.keys())  # ✅ Ensuring `module_map` exists before using it
-app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
-
-logger.info(f"📌 User selected: {app_selection}")
-
-# ========================
-# 📁 Ensure Module Pathing
+# 📁 Ensure Module Paths
 # ========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_DIR = os.path.join(BASE_DIR, "app")
-if APP_DIR not in sys.path:
-    sys.path.insert(0, APP_DIR)
-
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
-if MODULES_DIR not in sys.path:
-    sys.path.insert(0, MODULES_DIR)
+
+for path in [APP_DIR, MODULES_DIR, BASE_DIR]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
 
 # ========================
-# 🚨 Pre-load all modules to catch import errors early
+# 📌 Sidebar Navigation
 # ========================
-preload_modules = list(module_map.values())
+st.sidebar.title("🧠 Enginuity Suite")
+routes = list(module_map.keys())
+app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
+logger.info(f"📌 User selected: {app_selection}")
 
-for mod_name in preload_modules:
+# ========================
+# 🔌 API Health Check
+# ========================
+try:
+    res = requests.get(f"{API_BASE_URL}/status", timeout=5)
+    if res.status_code == 200:
+        st.sidebar.success("✅ Connected to Enginuity API")
+    else:
+        st.sidebar.warning("⚠️ API issue detected.")
+except requests.exceptions.RequestException as e:
+    st.sidebar.warning("⚠️ Unable to connect to API.")
+    logger.error(f"❌ API connection failed: {e}", exc_info=True)
+
+# ========================
+# 🚨 Preload Module Imports
+# ========================
+for mod_name in module_map.values():
     try:
         importlib.import_module(mod_name)
         logger.info(f"✅ Preloaded: {mod_name}")
@@ -83,77 +88,57 @@ for mod_name in preload_modules:
         st.sidebar.error(f"❌ Failed to preload: `{mod_name}`")
     except Exception as e:
         logger.exception(f"🔥 Unexpected preload error for {mod_name}: {e}")
-        st.sidebar.error(f"⚠ Error preloading `{mod_name}`: {str(e)}")
+        st.sidebar.error(f"⚠ Error preloading `{mod_name}`")
 
 # ========================
-# 🔌 API Status Check
+# 🔄 Fallback Loader
 # ========================
-try:
-    res = requests.get(f"{API_BASE_URL}/status", timeout=5)
-    if res.status_code == 200:
-        st.sidebar.success("✅ Connected to Enginuity API")
-        logger.info("✅ API connection established successfully.")
-    else:
-        st.sidebar.warning("⚠️ API connection issue.")
-        logger.warning(f"❌ API status error: {res.status_code} - {res.text}")
-except requests.exceptions.RequestException as e:
-    st.sidebar.warning("⚠️ Unable to connect to API.")
-    logger.error(f"❌ API connection failed: {e}", exc_info=True)
+def fallback_to_home():
+    try:
+        import modules.home as fallback
+        fallback.render_dashboard()
+    except Exception as fallback_err:
+        tb = traceback.format_exc()
+        logger.critical(f"🚨 Fallback failed: {fallback_err}")
+        st.error("🚫 Critical error: Unable to load any module.")
+        with st.expander("Error Details"):
+            st.code(tb, language="python")
 
 # ========================
-# 🔄 Dynamic Module Loader
+# 📦 Dynamic Module Loader
 # ========================
 def load_module(module_key: str):
-    """Dynamically loads selected engineering module."""
     module_name = module_map.get(module_key, "modules.home")
     try:
         module = importlib.import_module(module_name)
         if hasattr(module, "render_dashboard"):
             module.render_dashboard()
         else:
-            logger.error(f"🔧 `{module_name}` missing `render_dashboard()`.")
-            st.error(f"⚠ `{module_name}` is missing the `render_dashboard()` function.")
+            st.error(f"⚠ `{module_name}` lacks `render_dashboard()`")
+            logger.warning(f"🔧 Missing render_dashboard() in {module_name}")
             fallback_to_home()
     except ModuleNotFoundError as e:
-        logger.error(f"❌ Failed to import `{module_name}`: {e}")
-        st.error(f"❌ Unable to load `{module_name}`. Using fallback module.")
+        logger.error(f"❌ Module `{module_name}` not found: {e}")
+        st.error(f"❌ Could not load `{module_name}`. Redirecting...")
         fallback_to_home()
     except Exception as e:
         tb = traceback.format_exc()
-        logger.exception(f"🔥 Unexpected error while loading `{module_name}`: {e}")
-        st.error(f"⚠ Unexpected error occurred while loading `{module_name}`.")
+        logger.error(f"🔥 Unexpected error in `{module_name}`: {e}")
+        st.error(f"⚠ Error loading `{module_name}`.")
         with st.expander("🔍 Technical Details"):
             st.code(tb, language="python")
         fallback_to_home()
 
 # ========================
-# 🚨 Fallback Loader
+# 🚀 Launch Selected Module
 # ========================
-def fallback_to_home():
-    """Fallback mechanism to load default Home module in case of failure."""
-    try:
-        import modules.home as fallback
-        fallback.render_dashboard()
-    except Exception as fallback_err:
-        logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
-        st.error("🚫 Critical error: Unable to load any dashboard modules.")
+load_module(app_selection)
 
-
-def fallback_to_home():
-    st.warning("Redirecting to home module...")
-    # Add your redirection logic here
-
-
-# Example: Call a method in the module (if it loaded)
-if aeroiq_module:
-    try:
-        aeroiq_module.render_dashboard()
-    except Exception as e:
-        st.error(f"Failed to render AeroIQ dashboard: {e}")
-import sys
-import streamlit as st
-
-st.markdown("### 🔍 sys.modules loaded:")
-for name in sorted(sys.modules.keys()):
-    if "aeroiq" in name or "fusionx" in name or "module" in name:
-        st.code(name)
+# ========================
+# 🧪 Optional Debug Info
+# ========================
+if st.sidebar.checkbox("🔍 Show Loaded Modules"):
+    st.markdown("### Loaded sys.modules")
+    for name in sorted(sys.modules.keys()):
+        if any(x in name for x in ["aeroiq", "fusionx", "modules"]):
+            st.code(name)
