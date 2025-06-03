@@ -137,16 +137,12 @@ def fallback_to_home():
     except Exception as fallback_err:
         logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
         st.error("🚫 Critical error: Unable to load any dashboard modules.")
-# main.py or app.py
-from module_loader import load_dynamic_module
-import streamlit as st
+
 
 def fallback_to_home():
     st.warning("Redirecting to home module...")
     # Add your redirection logic here
 
-# Load AeroIQ module
-aeroiq_module = load_dynamic_module("modules.aeroiq", fallback=fallback_to_home)
 
 # Example: Call a method in the module (if it loaded)
 if aeroiq_module:
