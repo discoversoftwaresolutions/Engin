@@ -1,5 +1,3 @@
-# shared/agent_client.py
-
 import requests
 import os
 import logging
