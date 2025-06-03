@@ -1,4 +1,3 @@
-
 import streamlit as st
 import logging
 import importlib
@@ -6,6 +5,9 @@ import sys
 import os
 import traceback
 import requests  # ✅ Used for backend API connectivity
+import sys
+import os
+sys.path.insert(0, os.path.abspath("."))  # Add current working dir to path
 
 # ========================
 # 🔧 Streamlit Page Config
