@@ -34,9 +34,9 @@ API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Defined befo
 # ========================
 module_map = {
     "Home": "modules.home",
-    "AeroIQ - Aerospace": "app.aeroiq",
+    "AeroIQ - Aerospace": "modules.aeroiq",
     "FlowCore - Digital Twin & Compliance": "modules.flowcore",
-    "FusionX - Energy & Plasma": "app.fusionx",
+    "FusionX - Energy & Plasma": "modules.fusionx",
     "Simulai - Simulation AI": "modules.simulai",
     "VisuAI - Visual Intelligence": "modules.visuai",
     "ProtoPrint - Additive MFG": "modules.protoprint",
