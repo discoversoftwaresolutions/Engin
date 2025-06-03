@@ -49,7 +49,7 @@ module_map = {
 # ========================
 st.sidebar.title("🧠 Enginuity Suite")
 
-routes = list(module_map.keys())  # ✅ Ensuring `module_map` exists before using it
+routes = list(module_map.keys())
 app_selection = st.sidebar.radio("🔬 Select Engineering Module:", routes)
 
 logger.info(f"📌 User selected: {app_selection}")
@@ -65,22 +65,6 @@ if APP_DIR not in sys.path:
 MODULES_DIR = os.path.join(BASE_DIR, "modules")
 if MODULES_DIR not in sys.path:
     sys.path.insert(0, MODULES_DIR)
-
-# ========================
-# 🚨 Pre-load all modules to catch import errors early
-# ========================
-preload_modules = list(module_map.values())
-
-for mod_name in preload_modules:
-    try:
-        importlib.import_module(mod_name)
-        logger.info(f"✅ Preloaded: {mod_name}")
-    except ModuleNotFoundError as e:
-        logger.error(f"❌ Module not found during preload: {mod_name} | {e}")
-        st.sidebar.error(f"❌ Failed to preload: `{mod_name}`")
-    except Exception as e:
-        logger.exception(f"🔥 Unexpected preload error for {mod_name}: {e}")
-        st.sidebar.error(f"⚠ Error preloading `{mod_name}`: {str(e)}")
 
 # ========================
 # 🔌 API Status Check
@@ -134,3 +118,8 @@ def fallback_to_home():
     except Exception as fallback_err:
         logger.critical(f"🚨 Fallback module `home` also failed: {fallback_err}")
         st.error("🚫 Critical error: Unable to load any dashboard modules.")
+
+# ========================
+# 🚀 Execute Selected Module
+# ========================
+load_module(app_selection)
