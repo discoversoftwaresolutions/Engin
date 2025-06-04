@@ -1,7 +1,7 @@
 {
   "name": "enginuity-frontend",
   "version": "1.0.0",
-  "description": "Enginuity Marketplace Demo UI",
+  "description": "Discover Marketplace Demo UI",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
