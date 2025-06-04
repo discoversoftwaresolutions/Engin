@@ -3,7 +3,7 @@
 // ✅ Environment-agnostic HTTP client using fetch
 // Works in Node.js (via `node-fetch`) and modern browsers
 
-const FUSIONX_BASE_URL = process.env.FUSIONX_API_URL || 'https://api.discoversoftwaresolutions.com/fusionx';
+const FUSIONX_BASE_URL = process.env.FUSIONX_API_URL || "https://enginuity-production.up.railway.app"
 
 /**
  * Send a task request to FusionX
