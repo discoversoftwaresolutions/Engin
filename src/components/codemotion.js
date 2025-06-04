@@ -1,75 +1,72 @@
-import React, { useState } from "react";
+package com.enginuity.codemotion;
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.json.JSONObject;
 
-const CodeMotion = () => {
-  const [firmwareTarget, setFirmwareTarget] = useState("ESP32");
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [simulationLogs, setSimulationLogs] = useState(false);
-  const [resourceMetrics, setResourceMetrics] = useState(false);
-  const [responseData, setResponseData] = useState(null);
+import java.util.Map;
 
-  const handleFileUpload = (event) => {
-    setUploadedFile(event.target.files[0]);
-  };
+@RestController
+@RequestMapping("/codemotion")
+public class CodeMotionController {
 
-  const executeTask = async (taskEndpoint) => {
-    if (!uploadedFile) {
-      alert("⚠️ Please upload a code file first.");
-      return;
+    private static final String API_BASE_URL = "https://enginuity-production.up.railway.app";
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    // 🛠 Handle File Upload
+    @PostMapping("/upload")
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("⚠️ No file uploaded.");
+        }
+        return ResponseEntity.ok("✅ File uploaded: " + file.getOriginalFilename());
     }
 
-    const payload = { filename: uploadedFile.name, platform: firmwareTarget };
+    // 🔥 Execute Firmware, ROS2 Composition, or Behavior Simulation Task
+    @PostMapping("/execute-task")
+    public ResponseEntity<String> executeTask(@RequestParam String taskEndpoint,
+                                              @RequestParam String filename,
+                                              @RequestParam String platform) {
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("filename", filename);
+            payload.put("platform", platform);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/${taskEndpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
 
-      if (response.ok) {
-        setResponseData(data);
-      } else {
-        alert(`❌ API Error: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("🚨 Task Execution API error:", error);
+            HttpEntity<String> requestEntity = new HttpEntity<>(payload.toString(), headers);
+            ResponseEntity<String> response = restTemplate.exchange(API_BASE_URL + "/" + taskEndpoint, HttpMethod.POST, requestEntity, String.class);
+
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("🚨 API Request Failed: " + e.getMessage());
+        }
     }
-  };
 
-  return (
-    <div className="codemotion-dashboard">
-      <h1>🤖 CodeMotion – Robotics & Embedded Systems</h1>
-      <p>Generate firmware, compose ROS2 trees, and simulate robotic logic.</p>
+    // 🎯 Get Available Platforms (ESP32, STM32, etc.)
+    @GetMapping("/platforms")
+    public ResponseEntity<Map<String, String[]>> getPlatforms() {
+        return ResponseEntity.ok(Map.of(
+            "availablePlatforms", new String[]{"ESP32", "STM32", "Arduino", "Raspberry Pi"}
+        ));
+    }
 
-      <select value={firmwareTarget} onChange={(e) => setFirmwareTarget(e.target.value)}>
-        <option>ESP32</option>
-        <option>STM32</option>
-        <option>Arduino</option>
-        <option>Raspberry Pi</option>
-      </select>
+    // 📜 Toggle Simulation Logs
+    @PostMapping("/toggle-simulation-logs")
+    public ResponseEntity<String> toggleSimulationLogs(@RequestParam boolean enableLogs) {
+        return ResponseEntity.ok("📜 Simulation Logs: " + (enableLogs ? "Enabled" : "Disabled"));
+    }
 
-      <input type="file" onChange={handleFileUpload} accept=".yaml,.json,.ino,.c,.cpp" />
-
-      <button onClick={() => executeTask("generate-firmware")}>⚙️ Generate Firmware</button>
-      <button onClick={() => executeTask("compose-ros2")}>🌐 Compose ROS2 Behavior Tree</button>
-      <button onClick={() => executeTask("simulate-behavior")}>🔄 Run Behavior Simulation</button>
-
-      {responseData && <pre>{JSON.stringify(responseData, null, 2)}</pre>}
-
-      <h2>🎯 Simulation Settings</h2>
-      <label>
-        <input type="checkbox" checked={simulationLogs} onChange={(e) => setSimulationLogs(e.target.checked)} />
-        📜 Enable Detailed Execution Logs
-      </label>
-      <label>
-        <input type="checkbox" checked={resourceMetrics} onChange={(e) => setResourceMetrics(e.target.checked)} />
-        📊 Show Resource Utilization Metrics
-      </label>
-    </div>
-  );
-};
-
-export default CodeMotion;
+    // 📊 Toggle Resource Metrics
+    @PostMapping("/toggle-resource-metrics")
+    public ResponseEntity<String> toggleResourceMetrics(@RequestParam boolean enableMetrics) {
+        return ResponseEntity.ok("📊 Resource Metrics: " + (enableMetrics ? "Enabled" : "Disabled"));
+    }
+}
