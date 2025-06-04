@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import SimulAI from "./components/simulai";
 import ProtoPrint from "./components/protoprint";
-import { computeOrbit, computeHohmannTransfer } from "../services/orbital";
-import { plotOrbit3D } from "../services/orbital3D";
-plotOrbit3D(8000, 0.2, 28.5);
 import FusionX from "./components/fusionx";
 import FlowCore from "./components/flowcore";
 import CodeMotion from "./components/codemotion";
 import CircuitIQ from "./components/circuitiq";
+import { computeOrbit, computeHohmannTransfer } from "../services/orbital";
+import { plotOrbit3D } from "../services/orbital3D";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
 
@@ -23,10 +22,23 @@ const moduleMap = {
   "CodeMotion - Robotics Code": "codemotion",
 };
 
+const componentMap = {
+  simulai: <SimulAI />,
+  protoprint: <ProtoPrint />,
+  fusionx: <FusionX />,
+  flowcore: <FlowCore />,
+  codemotion: <CodeMotion />,
+  circuitiq: <CircuitIQ />,
+};
+
 const EnginuityDashboard = () => {
   const [selectedModule, setSelectedModule] = useState("Home");
   const [moduleContent, setModuleContent] = useState(null);
   const [apiStatus, setApiStatus] = useState("Checking API...");
+
+  useEffect(() => {
+    plotOrbit3D(8000, 0.2, 28.5); // now scoped and safe
+  }, []);
 
   useEffect(() => {
     const checkApiStatus = async () => {
@@ -48,11 +60,16 @@ const EnginuityDashboard = () => {
 
   useEffect(() => {
     const loadModule = async () => {
+      const key = moduleMap[selectedModule];
+      if (componentMap[key]) {
+        setModuleContent(null); // render component, not HTML
+        return;
+      }
       try {
-        const response = await fetch(`${API_BASE_URL}/${moduleMap[selectedModule]}/dashboard`);
+        const response = await fetch(`${API_BASE_URL}/${key}/dashboard`);
         if (response.ok) {
           const data = await response.json();
-          setModuleContent(data.html); // Assume API returns HTML
+          setModuleContent(data.html || `<p>✅ ${selectedModule} loaded.</p>`);
         } else {
           setModuleContent(`<p>❌ Failed to load ${selectedModule} module.</p>`);
         }
@@ -63,6 +80,8 @@ const EnginuityDashboard = () => {
 
     loadModule();
   }, [selectedModule]);
+
+  const key = moduleMap[selectedModule];
 
   return (
     <div className="enginuity-dashboard">
@@ -75,7 +94,9 @@ const EnginuityDashboard = () => {
         ))}
       </select>
 
-      <div dangerouslySetInnerHTML={{ __html: moduleContent }} />
+      <div className="module-render-area">
+        {componentMap[key] || <div dangerouslySetInnerHTML={{ __html: moduleContent }} />}
+      </div>
     </div>
   );
 };
