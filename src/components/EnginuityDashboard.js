@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import EnginuityDashboard from "./components/enginuity";
 import SimulAI from "./components/simulai";
 import ProtoPrint from "./components/protoprint";
 import { computeOrbit, computeHohmannTransfer } from "../services/orbital";
