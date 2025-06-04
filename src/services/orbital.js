@@ -1,55 +1,45 @@
-import numpy as np
-from typing import Tuple
+const MU_EARTH = 398600.4418; // Gravitational constant in km³/s²
 
-# Gravitational constant for Earth (mu) in km^3/s^2
-MU_EARTH = 398600.4418
+function computeOrbit(semiMajorAxisKm, eccentricity, inclinationDeg = 0.0, numPoints = 360) {
+  const theta = Array.from({ length: numPoints }, (_, i) => (i * (2 * Math.PI)) / numPoints);
+  const r = theta.map(t => semiMajorAxisKm * (1 - eccentricity ** 2) / (1 + eccentricity * Math.cos(t)));
 
-def compute_orbit(semi_major_axis_km: float, eccentricity: float, inclination_deg: float = 0.0, num_points: int = 360) -> Tuple[np.ndarray, np.ndarray, dict]:
-    """
-    Compute 2D orbital coordinates (Keplerian ellipse) with optional inclination.
-    """
-    a = semi_major_axis_km
-    e = eccentricity
-    i = np.radians(inclination_deg)
+  // Convert to Cartesian coordinates
+  const x = r.map((radius, i) => radius * Math.cos(theta[i]));
+  const y = r.map((radius, i) => radius * Math.sin(theta[i]));
 
-    theta = np.linspace(0, 2 * np.pi, num_points)
-    r = a * (1 - e**2) / (1 + e * np.cos(theta))
+  // Apply inclination (2D simplification)
+  const inclinationRad = (Math.PI / 180) * inclinationDeg;
+  const yInclined = y.map(yValue => yValue * Math.cos(inclinationRad));
 
-    # Orbital plane coordinates
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
-
-    # Rotate by inclination (simple 2D projection, not full 3D)
-    x_inclined = x
-    y_inclined = y * np.cos(i)
-
-    return x_inclined, y_inclined, {
-        "semi_major_axis_km": a,
-        "eccentricity": e,
-        "inclination_deg": inclination_deg,
-        "apoapsis_km": a * (1 + e),
-        "periapsis_km": a * (1 - e),
-        "orbital_period_min": 2 * np.pi * np.sqrt(a**3 / MU_EARTH) / 60  # in minutes
+  return {
+    x: x,
+    y: yInclined,
+    details: {
+      semiMajorAxisKm,
+      eccentricity,
+      inclinationDeg,
+      apoapsisKm: semiMajorAxisKm * (1 + eccentricity),
+      periapsisKm: semiMajorAxisKm * (1 - eccentricity),
+      orbitalPeriodMin: (2 * Math.PI * Math.sqrt(semiMajorAxisKm ** 3 / MU_EARTH)) / 60
     }
+  };
+}
 
-def compute_hohmann_transfer(r1_km: float, r2_km: float) -> dict:
-    """
-    Computes delta-v and time of flight for Hohmann transfer between circular orbits.
-    """
-    v1 = np.sqrt(MU_EARTH / r1_km)
-    v_transfer1 = np.sqrt(2 * MU_EARTH * r2_km / (r1_km * (r1_km + r2_km)))
-    dv1 = v_transfer1 - v1
+function computeHohmannTransfer(r1Km, r2Km) {
+  const v1 = Math.sqrt(MU_EARTH / r1Km);
+  const v2 = Math.sqrt(MU_EARTH / r2Km);
 
-    v2 = np.sqrt(MU_EARTH / r2_km)
-    v_transfer2 = np.sqrt(2 * MU_EARTH * r1_km / (r2_km * (r1_km + r2_km)))
-    dv2 = v2 - v_transfer2
+  // Compute transfer velocities
+  const vTransfer1 = Math.sqrt((2 * MU_EARTH * r2Km) / (r1Km * (r1Km + r2Km)));
+  const vTransfer2 = Math.sqrt((2 * MU_EARTH * r1Km) / (r2Km * (r1Km + r2Km)));
 
-    a_transfer = 0.5 * (r1_km + r2_km)
-    tof_sec = np.pi * np.sqrt(a_transfer**3 / MU_EARTH)
+  return {
+    deltaV1KmS: vTransfer1 - v1,
+    deltaV2KmS: v2 - vTransfer2,
+    totalDeltaVKmS: Math.abs(vTransfer1 - v1) + Math.abs(v2 - vTransfer2),
+    timeOfFlightMin: (Math.PI * Math.sqrt(((r1Km + r2Km) ** 3) / (8 * MU_EARTH))) / 60
+  };
+}
 
-    return {
-        "delta_v1_km_s": dv1,
-        "delta_v2_km_s": dv2,
-        "total_delta_v_km_s": abs(dv1) + abs(dv2),
-        "time_of_flight_min": tof_sec / 60
-    }
+module.exports = { computeOrbit, computeHohmannTransfer };
