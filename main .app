@@ -7,7 +7,7 @@ import { plotOrbit3D } from "../services/orbital3D";
 plotOrbit3D(8000, 0.2, 28.5);
 import FusionX from "./components/fusionx";
 import FlowCore from "./components/flowcore";
-
+import CodeMotion from "./components/codemotion";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
 
