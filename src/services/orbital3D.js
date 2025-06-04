@@ -1,34 +1,57 @@
-import numpy as np
-import plotly.graph_objects as go
-from modules.orbital_sim import compute_orbit
-from skyfield.api import load, EarthSatellite
+import * as THREE from "three";
 
-def plot_orbit_3d(semi_major_axis_km, eccentricity, inclination_deg):
-    x, y, meta = compute_orbit(semi_major_axis_km, eccentricity, inclination_deg)
-    z = np.zeros_like(x)
-    i_rad = np.radians(inclination_deg)
-    z = y * np.sin(i_rad)
-    y = y * np.cos(i_rad)
+// Constants
+const EARTH_RADIUS_KM = 6371;
 
-    u, v = np.mgrid[0:2*np.pi:50j, 0:np.pi:25j]
-    xe = 6371 * np.cos(u) * np.sin(v)
-    ye = 6371 * np.sin(u) * np.sin(v)
-    ze = 6371 * np.cos(v)
+/**
+ * Compute orbital path in 3D space
+ * @param {number} semiMajorAxisKm - Semi-major axis of the orbit in km
+ * @param {number} eccentricity - Orbit eccentricity (0 = circular, 1 = parabolic)
+ * @param {number} inclinationDeg - Inclination angle in degrees
+ * @returns {Object} - 3D orbital coordinates { x, y, z }
+ */
+function computeOrbit3D(semiMajorAxisKm, eccentricity, inclinationDeg = 0.0, numPoints = 360) {
+  const theta = Array.from({ length: numPoints }, (_, i) => (i * (2 * Math.PI)) / numPoints);
+  const r = theta.map(t => semiMajorAxisKm * (1 - eccentricity ** 2) / (1 + eccentricity * Math.cos(t)));
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name='Orbit Path', line=dict(color='lime')))
-    fig.add_trace(go.Surface(x=xe, y=ye, z=ze, colorscale='Blues', opacity=0.6, showscale=False, name='Earth'))
+  const x = r.map((radius, i) => radius * Math.cos(theta[i]));
+  const y = r.map((radius, i) => radius * Math.sin(theta[i]));
 
-    fig.update_layout(
-        scene=dict(xaxis_title='X (km)', yaxis_title='Y (km)', zaxis_title='Z (km)', aspectmode='data'),
-        title='3D Orbital Path',
-        height=700,
-        showlegend=True
-    )
-    return fig
+  const inclinationRad = (Math.PI / 180) * inclinationDeg;
+  const z = y.map(yValue => yValue * Math.sin(inclinationRad));
+  const yInclined = y.map(yValue => yValue * Math.cos(inclinationRad));
 
-def get_live_satellite_position(tle_line1, tle_line2):
-    ts = load.timescale()
-    satellite = EarthSatellite(tle_line1, tle_line2, "Live Satellite", ts)
-    geocentric = satellite.at(ts.now()).position.km
-    return geocentric.tolist()  # [x, y, z]
+  return { x, y: yInclined, z };
+}
+
+/**
+ * Plot 3D Orbit using Three.js
+ */
+function plotOrbit3D(scene, semiMajorAxisKm, eccentricity, inclinationDeg) {
+  const { x, y, z } = computeOrbit3D(semiMajorAxisKm, eccentricity, inclinationDeg);
+
+  const geometry = new THREE.BufferGeometry();
+  const vertices = new Float32Array(x.length * 3);
+
+  x.forEach((_, i) => {
+    vertices[i * 3] = x[i];
+    vertices[i * 3 + 1] = y[i];
+    vertices[i * 3 + 2] = z[i];
+  });
+
+  geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+  const material = new THREE.LineBasicMaterial({ color: "lime" });
+  const line = new THREE.Line(geometry, material);
+
+  scene.add(line);
+}
+
+/**
+ * Get live satellite position from API (mock for now)
+ */
+async function getLiveSatellitePosition(tleLine1, tleLine2) {
+  // TODO: Implement real-time API-based tracking
+  return { x: Math.random() * 10000, y: Math.random() * 10000, z: Math.random() * 10000 };
+}
+
+export { computeOrbit3D, plotOrbit3D, getLiveSatellitePosition };
