@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import EnginuityDashboard from "./components/enginuity";
+import SimulAI from "./components/simulai";
+import ProtoPrint from "./components/protoprint";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
 
