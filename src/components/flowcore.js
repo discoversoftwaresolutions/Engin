@@ -1,70 +1,68 @@
-import streamlit as st
-import logging
-import requests
-from typing import Dict, Any
-from datetime import datetime
+package com.enginuity.flowcore;
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestTemplate;
+import org.json.JSONObject;
 
-# ✅ Setup Logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("flowcore")
+import java.time.Instant;
+import java.util.Map;
+import java.util.logging.Logger;
 
-API_BASE_URL = "https://enginuity-production.up.railway.app"  # ✅ Integrated production endpoint
+@RestController
+@RequestMapping("/flowcore")
+public class FlowCoreController {
 
-def render_dashboard():
-    """Renders the FlowCore - Digital Twin & Compliance dashboard."""
+    private static final String API_BASE_URL = "https://enginuity-production.up.railway.app";
+    private final RestTemplate restTemplate = new RestTemplate();
+    private static final Logger logger = Logger.getLogger(FlowCoreController.class.getName());
 
-    st.title("🔄 FlowCore – Digital Twin & Compliance")
-    st.markdown("**Sync, validate, and observe engineering systems with real-time digital twins and compliance logic.**")
-
-    # ---- Sidebar Navigation ----
-    st.sidebar.subheader("🧭 Select FlowCore Task")
-    task_options = {
-        "Sync Digital Twin State": "Synchronize the digital twin with real-world telemetry data.",
-        "Track Engineering Changes": "Audit and version control your model state transitions.",
-        "Validate Compliance Rules": "Run your twin against real-time or simulated compliance constraints."
+    // 🧭 Get Available FlowCore Tasks
+    @GetMapping("/tasks")
+    public ResponseEntity<Map<String, String>> getTaskOptions() {
+        Map<String, String> taskOptions = Map.of(
+            "Sync Digital Twin State", "Synchronize the digital twin with real-world telemetry data.",
+            "Track Engineering Changes", "Audit and version control your model state transitions.",
+            "Validate Compliance Rules", "Run your twin against real-time or simulated compliance constraints."
+        );
+        return ResponseEntity.ok(taskOptions);
     }
 
-    task = st.sidebar.selectbox("Task Options", list(task_options.keys()))
-    st.sidebar.markdown(f"ℹ **Description:** {task_options[task]}")
+    // 📌 Execute FlowCore Task
+    @PostMapping("/execute-task")
+    public ResponseEntity<String> executeTask(@RequestBody Map<String, String> payload) {
+        try {
+            String task = payload.get("task");
+            String description = payload.get("description");
+            String timestamp = Instant.now().toString();
 
-    # ---- User Input ----
-    st.subheader(f"📌 Selected Task: {task}")
-    prompt = st.text_area(
-        "📄 Describe the system state or objective:",
-        placeholder="e.g., Sync propulsion twin with telemetry snapshot from 2025-05-01T00:00Z..."
-    )
+            logger.info("[FlowCore] Task: " + task + " | Description: " + description + " | Timestamp: " + timestamp);
 
-    # ---- Task Execution ----
-    if st.button("🚀 Execute Task"):
-        if not prompt.strip():
-            st.warning("⚠️ Please provide a detailed objective.")
-            return
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("task", task);
+            requestBody.put("description", description);
+            requestBody.put("timestamp", timestamp);
 
-        timestamp = datetime.utcnow().isoformat()
-        logger.info(f"[FlowCore] Task: {task} | Prompt: {prompt} | Timestamp: {timestamp}")
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
 
-        try:
-            res = requests.post(
-                f"{API_BASE_URL}/execute-task",
-                json={"task": task, "description": prompt, "timestamp": timestamp},
-                timeout=10
-            )
-            if res.status_code == 200:
-                response_data = res.json()
-                st.success("✅ Task Completed")
-                st.json(response_data)
-                logger.info("✅ FlowCore task executed successfully.")
-            else:
-                st.error(f"⚠️ API Error: {res.text}")
-                logger.error(f"❌ FlowCore API error: {res.status_code} - {res.text}")
-        except Exception as e:
-            st.error(f"⚠️ Failed to execute task: {e}")
-            logger.error(f"❌ API request failed: {e}")
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
+            ResponseEntity<String> response = restTemplate.exchange(API_BASE_URL + "/execute-task", HttpMethod.POST, requestEntity, String.class);
 
-    # ---- Footer ----
-    st.markdown("---")
-    st.markdown("FlowCore – A Discover Software Solutions Module • 2025")
-
-if __name__ == "__main__":
-    render_dashboard()
+            if (response.getStatusCode() == HttpStatus.OK) {
+                logger.info("✅ FlowCore task executed successfully.");
+                return ResponseEntity.ok(response.getBody());
+            } else {
+                logger.warning("⚠️ FlowCore API error: " + response.getStatusCode());
+                return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+            }
+        } catch (Exception e) {
+            logger.severe("🚨 API request failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("API Request Failed: " + e.getMessage());
+        }
+    }
+}
