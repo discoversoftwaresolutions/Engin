@@ -7,22 +7,31 @@ const SimulAI = () => {
   const [simType, setSimType] = useState("Structural");
   const [material, setMaterial] = useState("");
   const [meshPreview, setMeshPreview] = useState(null);
-  const [simulationResults, setSimulationResults] = useState([]);
+  const [simulationResults, setSimulationResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFileUpload = (event) => {
     setSimFile(event.target.files[0]);
   };
 
   const runSimulation = async () => {
-    if (!simFile) return alert("Please upload a simulation model first.");
+    if (!simFile) {
+      alert("⚠️ Please upload a simulation model first.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
 
     const formData = new FormData();
     formData.append("file", simFile);
     formData.append("material", material || "Unknown");
     formData.append("quality", "medium");
+    formData.append("simulationType", simType);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/simulai/generate-mesh`, {
+      const response = await fetch(`${API_BASE_URL}/simulai/run-simulation`, {
         method: "POST",
         body: formData,
       });
@@ -30,11 +39,15 @@ const SimulAI = () => {
 
       if (response.ok) {
         setMeshPreview(data.mesh_preview_url || "https://fallback-image-url.com/default.png");
+        setSimulationResults(data.results || []);
       } else {
-        alert("Mesh generation failed.");
+        setError(`❌ Simulation failed: ${data.message || "Unknown error"}`);
       }
     } catch (error) {
+      setError(`🚨 Simulation API error: ${error.message}`);
       console.error("Simulation API error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,26 +65,34 @@ const SimulAI = () => {
       </select>
       <input type="text" placeholder="e.g., Aluminum 6061-T6" value={material} onChange={(e) => setMaterial(e.target.value)} />
 
-      <button onClick={runSimulation}>🔍 Run Simulation</button>
+      <button onClick={runSimulation} disabled={loading}>
+        {loading ? "⏳ Running..." : "🔍 Run Simulation"}
+      </button>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {meshPreview && <img src={meshPreview} alt="Mesh Preview" width="500" />}
 
       <h2>📊 Simulation Results</h2>
-      <table>
-        <thead>
-          <tr><th>Time (s)</th><th>Max Stress (MPa)</th></tr>
-        </thead>
-        <tbody>
-          {[0, 1, 2, 3, 4, 5].map((time, idx) => (
-            <tr key={idx}>
-              <td>{time}</td>
-              <td>{[0, 75, 120, 150, 175, 180][idx]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {simulationResults ? (
+        <table>
+          <thead>
+            <tr><th>Time (s)</th><th>Max Stress (MPa)</th></tr>
+          </thead>
+          <tbody>
+            {simulationResults.map((result, idx) => (
+              <tr key={idx}>
+                <td>{result.time}</td>
+                <td>{result.maxStress}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>⚡ No simulation results available yet.</p>
+      )}
 
-      <p>📋 AI Analysis: Max stress of 180 MPa observed. Yield = 260 MPa → PASS.</p>
+      <p>📋 AI Analysis: {simulationResults ? `Max stress of ${simulationResults?.[simulationResults.length - 1]?.maxStress} MPa observed.` : "Awaiting simulation data."}</p>
     </div>
   );
 };
