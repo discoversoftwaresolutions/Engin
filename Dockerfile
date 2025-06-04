@@ -4,16 +4,13 @@ FROM node:18-alpine
 # Set working directory inside container
 WORKDIR /app
 
-# Copy only package.json first (skip package-lock.json if missing)
+# Copy package files first (to leverage Docker caching)
 COPY package.json ./
 
 # Install dependencies (this will generate package-lock.json)
 RUN npm install
 
-# Then copy the remaining files
-COPY . .
-
-# Copy project files
+# Then copy the remaining project files
 COPY . .
 
 # Expose frontend port
