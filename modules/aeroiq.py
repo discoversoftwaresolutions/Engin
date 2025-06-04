@@ -1,14 +1,21 @@
 import streamlit as st
 import requests
 import logging
+import numpy as np
+import matplotlib.pyplot as plt
+from pathlib import Path
 
-
-
+# -------------------------------
+# Logging
+# -------------------------------
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://enginuity-production.up.railway.app/aeroiq"
 
+# -------------------------------
+# Supersonic Boom Calculator
+# -------------------------------
 def compute_wavefronts(mach: float, altitude_ft: float, num_points: int = 100):
     altitude_m = altitude_ft * 0.3048
     speed_of_sound = 343
@@ -26,6 +33,54 @@ def compute_wavefronts(mach: float, altitude_ft: float, num_points: int = 100):
         "mach": mach
     }
 
+# -------------------------------
+# Orbital Mechanics
+# -------------------------------
+def compute_orbit(semi_major_axis_km, eccentricity, inclination_deg, num_points=360):
+    theta = np.linspace(0, 2 * np.pi, num_points)
+    r = (semi_major_axis_km * (1 - eccentricity ** 2)) / (1 + eccentricity * np.cos(theta))
+    x = r * np.cos(theta)
+    y = r * np.sin(theta)
+
+    G = 6.67430e-11  # gravitational constant
+    M = 5.972e24     # Earth mass
+    mu = G * M / 1e9  # convert to km^3/s^2
+    orbital_period = 2 * np.pi * np.sqrt((semi_major_axis_km**3) / mu) / 60
+
+    return x, y, {
+        "periapsis_km": semi_major_axis_km * (1 - eccentricity),
+        "apoapsis_km": semi_major_axis_km * (1 + eccentricity),
+        "orbital_period_min": orbital_period
+    }
+
+# -------------------------------
+# Hohmann Transfer
+# -------------------------------
+def compute_hohmann_transfer(r1_km, r2_km):
+    G = 6.67430e-11
+    M = 5.972e24
+    mu = G * M / 1e9
+    a_transfer = (r1_km + r2_km) / 2
+
+    v1 = np.sqrt(mu / r1_km)
+    v2 = np.sqrt(mu / r2_km)
+    v_transfer1 = np.sqrt(mu * (2 / r1_km - 1 / a_transfer))
+    v_transfer2 = np.sqrt(mu * (2 / r2_km - 1 / a_transfer))
+
+    delta_v1 = v_transfer1 - v1
+    delta_v2 = v2 - v_transfer2
+    tof = np.pi * np.sqrt((a_transfer ** 3) / mu) / 60
+
+    return {
+        "delta_v1_km_s": delta_v1,
+        "delta_v2_km_s": delta_v2,
+        "total_delta_v_km_s": delta_v1 + delta_v2,
+        "time_of_flight_min": tof
+    }
+
+# -------------------------------
+# Streamlit UI
+# -------------------------------
 def render_dashboard():
     st.title("🚀 AeroIQ - Aerospace Engineering Module")
     st.markdown("Model-based systems engineering, propulsion, avionics, and orbital simulation.")
@@ -124,9 +179,11 @@ def render_dashboard():
     st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
 
 
-# Save the AeroIQ module to file
-path = Path("/mnt/data/enginuity_frontend/modules/aeroiq.py")
-path.parent.mkdir(parents=True, exist_ok=True)
-path.write_text(aeroiq_full_code)
-
-str(path)
+# -------------------------------
+# Save File
+# -------------------------------
+if __name__ == "__main__":
+    aeroiq_full_code = Path(__file__).read_text()
+    path = Path("/mnt/data/enginuity_frontend/modules/aeroiq.py")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(aeroiq_full_code)
