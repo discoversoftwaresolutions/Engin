@@ -122,7 +122,7 @@ def render_dashboard():
 
     st.markdown("---")
     st.markdown("© 2025 Discover Software Solutions • All rights reserved.")
-"""
+
 
 # Save the AeroIQ module to file
 path = Path("/mnt/data/enginuity_frontend/modules/aeroiq.py")
