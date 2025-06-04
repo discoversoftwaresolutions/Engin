@@ -1,12 +1,18 @@
-FROM python:3.11-slim
+# Use official Node.js runtime
+FROM node:18-alpine
 
+# Set working directory inside container
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy package files and install dependencies
+COPY package.json package-lock.json ./
+RUN npm install
 
+# Copy project files
 COPY . .
 
-EXPOSE 8501
+# Expose frontend port
+EXPOSE 3000
 
-CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.enableCORS=false"]
+# Start the app
+CMD ["npm", "start"]
