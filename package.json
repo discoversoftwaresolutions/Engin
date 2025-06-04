@@ -12,11 +12,15 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
     "axios": "^1.6.0",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "5.0.1",
+    "three": "^0.158.0",
     "ajv": "^8.12.0",
     "ajv-keywords": "^3.5.2"
   },
   "devDependencies": {
     "eslint": "^8.45.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
