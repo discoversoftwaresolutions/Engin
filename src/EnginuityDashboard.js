@@ -11,7 +11,7 @@ import { plotOrbit3D } from "../services/orbital3D";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
 
 const moduleMap = {
-  "Home": "home",
+  Home: "home",
   "AeroIQ - Aerospace": "aeroiq",
   "FlowCore - Digital Twin & Compliance": "flowcore",
   "FusionX - Energy & Plasma": "fusionx",
@@ -22,6 +22,7 @@ const moduleMap = {
   "CodeMotion - Robotics Code": "codemotion",
 };
 
+// Mapping keys to React components for local rendering
 const componentMap = {
   simulai: <SimulAI />,
   protoprint: <ProtoPrint />,
@@ -29,6 +30,7 @@ const componentMap = {
   flowcore: <FlowCore />,
   codemotion: <CodeMotion />,
   circuitiq: <CircuitIQ />,
+  // Note: AeroIQ and VisuAI do not have local React components, so will fetch HTML content
 };
 
 const EnginuityDashboard = () => {
@@ -36,35 +38,41 @@ const EnginuityDashboard = () => {
   const [moduleContent, setModuleContent] = useState(null);
   const [apiStatus, setApiStatus] = useState("Checking API...");
 
+  // Visual startup render
   useEffect(() => {
-    plotOrbit3D(8000, 0.2, 28.5); // visual startup render
+    plotOrbit3D(8000, 0.2, 28.5);
   }, []);
 
+  // Check API connectivity status
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/status`);
-        setApiStatus(response.ok
-          ? "✅ Connected to Enginuity API"
-          : "⚠️ API connection issue"
-        );
+        setApiStatus(response.ok ? "✅ Connected to Enginuity API" : "⚠️ API connection issue");
       } catch (error) {
         setApiStatus("❌ Unable to connect to API");
         console.error("API status error:", error);
       }
     };
-
     checkApiStatus();
   }, []);
 
+  // Load module content or prepare for local component rendering
   useEffect(() => {
     const loadModule = async () => {
       const key = moduleMap[selectedModule];
-      if (componentMap[key]) {
-        setModuleContent(null); // render local React component
+      if (!key) {
+        setModuleContent(`<p>❌ Unknown module: ${selectedModule}</p>`);
         return;
       }
 
+      if (componentMap[key]) {
+        // Local React component exists — clear HTML content to render component
+        setModuleContent(null);
+        return;
+      }
+
+      // No local component — fetch HTML content from API
       try {
         const response = await fetch(`${API_BASE_URL}/${key}/dashboard`);
         if (response.ok) {
@@ -90,13 +98,19 @@ const EnginuityDashboard = () => {
 
       <select value={selectedModule} onChange={(e) => setSelectedModule(e.target.value)}>
         {Object.keys(moduleMap).map((module) => (
-          <option key={module} value={module}>{module}</option>
+          <option key={module} value={module}>
+            {module}
+          </option>
         ))}
       </select>
 
       <div className="module-render-area">
+        {/* Render React component if exists; otherwise render HTML */}
         {componentMap[key] || (
-          <div dangerouslySetInnerHTML={{ __html: moduleContent }} />
+          <div
+            dangerouslySetInnerHTML={{ __html: moduleContent }}
+            style={{ whiteSpace: "pre-wrap" }} // preserve formatting if needed
+          />
         )}
       </div>
     </div>
