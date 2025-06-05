@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import SimulAI from "./components/simulai";
-import ProtoPrint from "./components/protoprint";
-import FusionX from "./components/fusionx";
-import FlowCore from "./components/flowcore";
-import CodeMotion from "./components/codemotion";
-import CircuitIQ from "./components/circuitiq";
+import SimulAI from "./simulai";
+import ProtoPrint from "./protoprint";
+import FusionX from "./fusionx";
+import FlowCore from "./flowcore";
+import CodeMotion from "./codemotion";
+import CircuitIQ from "./circuitiq";
 import { computeOrbit, computeHohmannTransfer } from "../services/orbital";
 import { plotOrbit3D } from "../services/orbital3D";
 
@@ -37,18 +37,17 @@ const EnginuityDashboard = () => {
   const [apiStatus, setApiStatus] = useState("Checking API...");
 
   useEffect(() => {
-    plotOrbit3D(8000, 0.2, 28.5); // now scoped and safe
+    plotOrbit3D(8000, 0.2, 28.5); // visual startup render
   }, []);
 
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/status`);
-        if (response.ok) {
-          setApiStatus("✅ Connected to Enginuity API");
-        } else {
-          setApiStatus("⚠️ API connection issue");
-        }
+        setApiStatus(response.ok
+          ? "✅ Connected to Enginuity API"
+          : "⚠️ API connection issue"
+        );
       } catch (error) {
         setApiStatus("❌ Unable to connect to API");
         console.error("API status error:", error);
@@ -62,9 +61,10 @@ const EnginuityDashboard = () => {
     const loadModule = async () => {
       const key = moduleMap[selectedModule];
       if (componentMap[key]) {
-        setModuleContent(null); // render component, not HTML
+        setModuleContent(null); // render local React component
         return;
       }
+
       try {
         const response = await fetch(`${API_BASE_URL}/${key}/dashboard`);
         if (response.ok) {
@@ -95,7 +95,9 @@ const EnginuityDashboard = () => {
       </select>
 
       <div className="module-render-area">
-        {componentMap[key] || <div dangerouslySetInnerHTML={{ __html: moduleContent }} />}
+        {componentMap[key] || (
+          <div dangerouslySetInnerHTML={{ __html: moduleContent }} />
+        )}
       </div>
     </div>
   );
