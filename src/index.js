@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EnginuityDashboard from "./enginuitydashboard"; // Ensure this matches the actual file name and casing
+import EnginuityDashboard from "./enginuitydashboard"; 
 
 ReactDOM.render(
   <React.StrictMode>
-    <EnginuityDashboard />
+    <EnginuityDashboard /> 
   </React.StrictMode>,
   document.getElementById("root")
 );
