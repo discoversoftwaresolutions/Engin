@@ -2,12 +2,12 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  mode: "development", // Change to 'production' for final builds
-  entry: "./src/index.js", // Main entry point
+  mode: "development", 
+  entry: "./src/index.js", 
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    clean: true, // Cleans old builds
+    clean: true, 
   },
   devServer: {
     static: {
@@ -15,11 +15,11 @@ module.exports = {
     },
     port: 3000,
     setupMiddlewares: (middlewares, devServer) => {
-      // Add custom middleware here if needed
+      
       return middlewares;
     },
-    hot: true, // Enables Hot Module Replacement
-    historyApiFallback: true, // Ensures React routing works
+    hot: true, 
+    historyApiFallback: true, 
   },
   module: {
     rules: [
@@ -45,7 +45,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./public/index.html", // Ensures proper index.html handling
+      template: "./public/index.html", 
     }),
   ],
 };
