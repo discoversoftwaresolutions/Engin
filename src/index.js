@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EnginuityDashboard from "./src/EnginuityDashboard"; // Use your main component instead!
+import EnginuityDashboard from "./enginuitydashboard"; // Ensure this matches exact filename
 
 ReactDOM.render(
   <React.StrictMode>
-    <EnginuityDashboard />  // Replace <App /> with the correct component
+    <EnginuityDashboard />
   </React.StrictMode>,
   document.getElementById("root")
 );
