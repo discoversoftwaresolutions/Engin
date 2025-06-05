@@ -5,7 +5,7 @@ import FusionX from "./fusionx";
 import FlowCore from "./flowcore";
 import CodeMotion from "./codemotion";
 import CircuitIQ from "./circuitiq";
-import { computeOrbit, computeHohmannTransfer } from "../services/orbital";
+import { computeOrbit, computeHohmannTransfer } from "/services/orbital";
 import { plotOrbit3D } from "../services/orbital3D";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://enginuity-production.up.railway.app";
