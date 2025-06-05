@@ -1,11 +1,7 @@
 package com.enginuity.flowcore;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
 
@@ -35,25 +31,35 @@ public class FlowCoreController {
     // 📌 Execute FlowCore Task
     @PostMapping("/execute-task")
     public ResponseEntity<String> executeTask(@RequestBody Map<String, String> payload) {
+        String task = payload.get("task");
+        String description = payload.get("description");
+
+        if (task == null || description == null) {
+            return ResponseEntity.badRequest().body("Missing 'task' or 'description' in request.");
+        }
+
+        String timestamp = Instant.now().toString();
+        logger.info("[FlowCore] Task: " + task + " | Description: " + description + " | Timestamp: " + timestamp);
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("task", task);
+        requestBody.put("description", description);
+        requestBody.put("timestamp", timestamp);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
+
         try {
-            String task = payload.get("task");
-            String description = payload.get("description");
-            String timestamp = Instant.now().toString();
+            ResponseEntity<String> response = restTemplate.exchange(
+                API_BASE_URL + "/execute-task",
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+            );
 
-            logger.info("[FlowCore] Task: " + task + " | Description: " + description + " | Timestamp: " + timestamp);
-
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("task", task);
-            requestBody.put("description", description);
-            requestBody.put("timestamp", timestamp);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
-            ResponseEntity<String> response = restTemplate.exchange(API_BASE_URL + "/execute-task", HttpMethod.POST, requestEntity, String.class);
-
-            if (response.getStatusCode() == HttpStatus.OK) {
+            if (response.getStatusCode().is2xxSuccessful()) {
                 logger.info("✅ FlowCore task executed successfully.");
                 return ResponseEntity.ok(response.getBody());
             } else {
