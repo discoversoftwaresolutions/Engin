@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EnginuityDashboard from "./components/EnginuityDashboard"; // Use your main component instead!
+import EnginuityDashboard from "./src/EnginuityDashboard"; // Use your main component instead!
 
 ReactDOM.render(
   <React.StrictMode>
