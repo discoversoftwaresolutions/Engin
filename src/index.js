@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import EnginuityDashboard from  "./enginuitydashboard";
+import TestComponent from "./testImports";
 
 ReactDOM.render(
   <React.StrictMode>
-    <EnginuityDashboard /> 
+    <TestComponent />
   </React.StrictMode>,
   document.getElementById("root")
 );
